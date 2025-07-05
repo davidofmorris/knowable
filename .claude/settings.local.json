@@ -11,7 +11,10 @@
       "Bash(git config:*)",
       "Bash(npx serve:*)",
       "Bash(git pull:*)",
-      "WebFetch(domain:docs.anthropic.com)"
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }

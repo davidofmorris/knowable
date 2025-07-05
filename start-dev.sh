@@ -31,12 +31,22 @@ cd /home/dmorris/projects/knowable/docs
 serve -p 8080 &
 FRONTEND_PID=$!
 
-# Wait a moment for frontend to start
+# Wait a moment for backend to start
+sleep 2
+
+# Start test page server
+echo "🌐 Starting test page on port 8081..."
+cd /home/dmorris/projects/knowable/test
+serve -p 8081 &
+TESTPAGE_PID=$!
+
+# Wait a moment for test page server to start
 sleep 2
 
 echo ""
 echo "✅ Both servers are running!"
 echo "🔗 Frontend: http://localhost:8080"
+echo "🔗 Test Page: http://localhost:8081"
 echo "🔗 Backend:  http://localhost:3000"
 echo ""
 echo "Press Ctrl+C to stop both servers"

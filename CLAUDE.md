@@ -14,18 +14,35 @@ The application is based on a normative ontology framework exploring structured 
 ## Architecture
 
 ### Backend Structure (`server/`)
-- `server.js`: Main Express server with CORS, JSON middleware, and route mounting
-- `routes/perspectives.js`: API endpoints for perspective data management
-- Sample perspective data structure follows 3x3 grid pattern (aspirational/operational/foundational × back/center/front)
+- `server.js`: Main Express server with CORS, JSON middleware, session management, and route mounting
+- `routes/server-router.js`: Action-command protocol implementation with perspective data
+- Session state management using instance headers for stateful client-server interactions
 
 ### Frontend Structure (`docs/`)
-- `index.html`: Main UI with perspective map visualization (CSS Grid 3x3)
-- `app.js`: Client-side logic with API integration and dynamic perspective loading
-- Responsive design with status indicators and real-time backend connection testing
+- `index.html`: Main UI with real-time API integration and testing
+- `app.js`: Client-side logic with action-command protocol implementation
+- Responsive design with status indicators and backend connection testing
+
+### Session Management
+- Server maintains separate state objects for each client session
+- Sessions identified by instance headers sent from client
+- Action-command protocol enables stateful interactions between client and server
 
 ## Development Commands
 
-### Backend Development
+### Recommended Development Setup
+```bash
+./start-dev.sh       # Start all development servers (backend, frontend, test)
+```
+
+This development script launches three servers simultaneously:
+- **Backend server** (port 3000) - Main API server
+- **Frontend server** (port 8080) - Static file server for the client  
+- **Test server** (port 8081) - Automated API testing with JSON results
+
+### Manual Development Setup
+
+#### Backend Development
 ```bash
 cd server
 npm install          # Install dependencies
@@ -33,42 +50,52 @@ npm run dev          # Start with nodemon (development)
 npm start           # Start production server
 ```
 
-### Frontend Development
-Open `docs/index.html` directly in browser or serve locally.
-Host locally on port 8080 by running `serve` from the /docs folder.
+#### Frontend Development
+```bash
+cd docs
+serve -p 8080        # Serve static files locally
+```
+
+#### Test Server
+```bash
+cd test
+npm install          # Install dependencies
+npm start           # Start test server
+```
 
 ## API Endpoints
 
 - `GET /` - API information and available endpoints
-- `GET /api/hello` - Hello world with timestamp and environment
-- `GET /api/health` - Server health check with uptime
-- `GET /api/perspectives` - List all available perspectives
-- `GET /api/perspectives/:id` - Get specific perspective by ID
+- `GET /api/hello` - Hello world with timestamp and instance support
+- `GET /api/health` - Server health check with uptime and instance support
+- `GET /api/server` - Action-command protocol endpoint (accepts action query parameters)
 
-## Perspective Data Structure
+## Action-Command Protocol
 
-Each perspective follows this schema:
-```javascript
-{
-  id: string,
-  name: string,
-  description: string,
-  map: {
-    aspirational: { back: string, center: string, front: string },
-    operational: { back: string, center: string, front: string },
-    foundational: { back: string, center: string, front: string }
-  }
-}
-```
+The server implements an action-command protocol where:
+- Client sends actions via query parameters to `/api/server?action=<action-name>`
+- Server processes actions in the context of the session state
+- Server responds with an array of commands for the client to execute
+
+### Available Actions
+- `refresh-perspective-list` - Request updated perspective list
+- `select-perspective` - Select a specific perspective by ID
+
+### Command Types
+- `show-perspective-list` - Display available perspectives
+- `show-perspective` - Display selected perspective details
+- `clear-perspective` - Clear current perspective
+- `warn` - Display warning message
 
 ## Frontend-Backend Integration
 
 - Client determines API URL based on hostname (localhost vs deployed)
 - **API URL Configuration**: Production backend URL set to `https://knowable-api.up.railway.app`
 - **Environment Detection**: Automatically switches between local (`http://localhost:3000`) and production URLs
-- Dynamic perspective loading updates 3x3 CSS grid visualization
+- **Action-Command Protocol**: Client sends actions via query parameters, server responds with command arrays
+- **Session Management**: Instance headers maintain separate server state for each client session
 - Connection status monitoring with error handling
-- Real-time API response display
+- Real-time API response display and testing interface
 
 ## Deployment
 
@@ -79,7 +106,9 @@ Each perspective follows this schema:
 
 ## Key Files for Architecture Understanding
 
-- `server/routes/perspectives.js:5-50` - Sample perspective data structure
-- `docs/app.js:69-85` - Perspective map rendering logic
-- `docs/index.html:40-55` - CSS Grid perspective visualization
-- `server/server.js:29-31` - Route mounting pattern
+- `server/routes/server-router.js:5-50` - Sample perspective data and action handlers
+- `server/routes/server-router.js:119-133` - Action-command protocol implementation
+- `server/server.js:15-27` - Session management middleware
+- `server/server.js:50-52` - Route mounting pattern
+- `docs/app.js` - Client-side API integration and testing interface
+- `docs/index.html` - Main UI with real-time backend integration

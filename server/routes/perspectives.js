@@ -53,7 +53,8 @@ const samplePerspectives = [
 router.get('/', (req, res) => {
   res.json({
     perspectives: samplePerspectives,
-    count: samplePerspectives.length
+    count: samplePerspectives.length,
+    instance: req.instance
   });
 });
 
@@ -63,7 +64,10 @@ router.get('/:id', (req, res) => {
   if (!perspective) {
     return res.status(404).json({ error: 'Perspective not found' });
   }
-  res.json(perspective);
+  res.json({
+    ...perspective,
+    instance: req.instance
+  });
 });
 
 module.exports = router;

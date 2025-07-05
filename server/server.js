@@ -5,16 +5,34 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Session state storage
+const sessionStates = new Map();
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Session middleware - extract instance header
+app.use((req, res, next) => {
+  const instanceId = req.headers['instance'] || 'default';
+  req.instance = instanceId;
+  
+  // Initialize session state if it doesn't exist
+  if (!sessionStates.has(instanceId)) {
+    sessionStates.set(instanceId, {});
+  }
+  
+  req.sessionState = sessionStates.get(instanceId);
+  next();
+});
 
 // Routes
 app.get('/api/hello', (req, res) => {
   res.json({ 
     message: 'Hello from your knowledge graph backend!',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    instance: req.instance
   });
 });
 
@@ -22,7 +40,8 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'healthy',
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    instance: req.instance
   });
 });
 

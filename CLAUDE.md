@@ -35,6 +35,7 @@ npm start           # Start production server
 
 ### Frontend Development
 Open `docs/index.html` directly in browser or serve locally.
+Host locally on port 8080 by running `serve` from the /docs folder.
 
 ## API Endpoints
 

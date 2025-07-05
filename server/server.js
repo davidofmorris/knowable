@@ -48,10 +48,6 @@ app.get('/api/health', (req, res) => {
 });
 
 // Import routes
-/* OLD
-const perspectiveRoutes = require('./routes/perspectives');
-app.use('/api/perspectives', perspectiveRoutes);
-*/
 const serverRouter = require('./routes/server-router');
 app.use('/api/server', serverRouter);
 
@@ -62,9 +58,10 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     description: 'Knowledge graph explorer backend',
     endpoints: {
+      about: '/',
       hello: '/api/hello',
       health: '/api/health',
-      perspectives: '/api/perspectives'
+      server: '/api/server'
     }
   });
 });

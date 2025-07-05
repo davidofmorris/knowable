@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'https://your-app.up.railway.app'; // Will be updated when Railway is deployed
+const API_BASE_URL = 'https://knowable-api.up.railway.app'; // Will be updated when Railway is deployed
 const LOCAL_API_URL = 'http://localhost:3000'; // For local development
 
 // Determine which API URL to use

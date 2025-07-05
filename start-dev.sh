@@ -37,7 +37,7 @@ sleep 2
 # Start test page server
 echo "🌐 Starting test page on port 8081..."
 cd /home/dmorris/projects/knowable/test
-serve -p 8081 &
+PORT=8081 LOCAL=true npm run dev &
 TESTPAGE_PID=$!
 
 # Wait a moment for test page server to start

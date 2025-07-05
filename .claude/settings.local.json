@@ -14,7 +14,8 @@
       "WebFetch(domain:docs.anthropic.com)",
       "Bash(curl:*)",
       "Bash(npm install:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

@@ -371,4 +371,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <small>Click "Run All Tests" to start comprehensive testing or use specific test buttons for focused testing.</small>
     `;
     container.insertBefore(infoDiv, container.children[1]);
+    
+    // Auto-run tests if URL parameter is present
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('autorun') === 'true') {
+        setTimeout(() => {
+            runAllTests();
+        }, 1000);
+    }
 });

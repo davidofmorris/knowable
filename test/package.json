@@ -1,0 +1,16 @@
+{
+  "name": "knowable-test-server",
+  "version": "1.0.0",
+  "description": "Test server for Knowable API",
+  "main": "test-server.js",
+  "scripts": {
+    "start": "node test-server.js",
+    "dev": "nodemon test-server.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["test", "api", "knowable"],
+  "author": "",
+  "license": "ISC"
+}

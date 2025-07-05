@@ -6,7 +6,7 @@ const API_BASE_URL = 'https://knowable-api.up.railway.app'; // Will be updated w
 const LOCAL_API_URL = 'http://localhost:3000'; // For local development
 
 // Determine which API URL to use
-const apiUrl = process.env.LOCAL ? LOCAL_API_URL : API_BASE_URL;
+const apiUrl = (process.env.LOCAL ? LOCAL_API_URL : API_BASE_URL) + '/api/';
 
 // Test results storage
 const testResults = [];
@@ -36,38 +36,55 @@ async function runTest(testName, testFunction) {
     }
 }
 
-// Your actual tests - using the same fetch syntax as frontend
+//
+// Tests
+//
 async function testHelloEndpoint() {
-    const response = await fetch(`${apiUrl}/api/hello`);
+    const response = await fetch(`${apiUrl}hello`);
     const data = await response.json();
-    
-    if (response.status !== 200) {
-        throw new Error(`Expected status 200, got ${response.status}`);
-    }
-    
+    testResponseStatus(response, 200);
     if (!data.message) {
         throw new Error('Response should contain a message field');
     }
 }
 
-async function testUsersEndpoint() {
-    const response = await fetch(`${apiUrl}/api/users`);
+async function testHealthEndpoint() {
+    const response = await fetch(`${apiUrl}health`);
     const data = await response.json();
-    
-    if (response.status !== 200) {
-        throw new Error(`Expected status 200, got ${response.status}`);
-    }
-    
-    if (!Array.isArray(data)) {
-        throw new Error('Response should be an array');
-    }
+    testResponseStatus(response, 200);
 }
 
 async function testErrorHandling() {
-    const response = await fetch(`${apiUrl}/api/nonexistent`);
-    
-    if (response.status !== 404) {
-        throw new Error(`Expected status 404, got ${response.status}`);
+    const response = await fetch(`${apiUrl}nonexistent`);
+    testResponseStatus(response, 404);
+}
+
+async function testRefreshPerspectiveList() {
+    const response = await fetch(`${apiUrl}server?action=refresh-perspective-list`);
+    const data = await response.json(); 
+    testResponseStatus(response, 200);
+    testCommandArray(data);  
+}
+
+async function testSelectPerspective() {
+    const response = await fetch(`${apiUrl}server?action=select-perspective`);
+    const data = await response.json();
+    testResponseStatus(response, 200);
+    testCommandArray(data);  
+}
+
+function testResponseStatus(res, expect) {
+    if (res.status !== expect) {
+        throw new Error(`Expected status ${expect}, got ${res.status}`);
+    }
+}
+
+function testCommandArray(data) {
+    if (!data) {
+        throw new Error(`Expected JSON response from server.`);
+    }
+    if (!Array.isArray(data)) {
+        throw new Error('Response should be an array of commands');
     }
 }
 
@@ -100,8 +117,11 @@ async function runAllTests() {
     
     // Run all your tests
     await runTest('Hello Endpoint Test', testHelloEndpoint);
-    await runTest('Users Endpoint Test', testUsersEndpoint);
+    await runTest('Health Endpoint Test', testHealthEndpoint);
     await runTest('Error Handling Test', testErrorHandling);
+
+    await runTest('Refresh Perspective List', testRefreshPerspectiveList);
+    await runTest('Select Perspective', testSelectPerspective);
     
     console.log('\n📊 Test completed!');
     console.log(`Total: ${testResults.length} tests, ${testResults.filter(t => t.status === 'PASS').length} passed, ${testResults.filter(t => t.status === 'FAIL').length} failed`);

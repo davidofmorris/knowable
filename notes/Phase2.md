@@ -40,3 +40,21 @@ Phase One lays the foundation for reasonably rapid iterations over a comprehensi
 
 
 # Phase Two design goals
+Phase Two will see a shift toward signal-based asynchronous client-server interactions.
+
+## Action - Command protocol
+The stateful server will present a single endpoint /server. Each request will be interpreted as an "action" or event that took place in the client. The server will consider the action within the context of the session's current state, the state will be updated and a response with one or more "commands" is returned to the client. The processing of commands returned by the server should result in updates to the visible state of the application to reflect the changes to the session state on the server.
+
+## Asynchronous client-server protocol
+Explore the use of Web Sockets to connect client's to their active server sessions asynchronously.
+
+### Phase 2 WebSocket Implementation Plan
+1. Add WebSocket dependency - Install ws library to existing server
+2. Integrate with Express server - Add WebSocket server alongside existing HTTP routes
+3. Implement action-command protocol - Create WebSocket message handlers for client actions and server commands 
+4. Update client - Add WebSocket connection and message handling to frontend
+5. Maintain backward compatibility - Keep existing HTTP endpoints during transition
+6. Test integration - Verify WebSocket communication works with session state management
+
+This approach builds on the existing Express/session architecture while adding real-time capabilities. 
+

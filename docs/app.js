@@ -34,64 +34,102 @@ async function testConnection() {
 // Load perspectives from API
 async function loadPerspectives() {
     try {
-        const response = await fetch(`${apiUrl}/api/perspectives`);
+        const response = await fetch(`${apiUrl}/api/server?action=refresh-perspective-list`);
         const data = await response.json();
-        
-        let html = '<ul>';
-        data.perspectives.forEach(perspective => {
-            html += `
-                <li>
-                    <strong>${perspective.name}</strong> - ${perspective.description}
-                    <button onclick="loadPerspective('${perspective.id}')" style="margin-left: 10px;">Load</button>
-                </li>
-            `;
-        });
-        html += '</ul>';
-        
-        perspectivesList.innerHTML = html;
-        
+        processCommands(data);
     } catch (error) {
-        perspectivesList.innerHTML = `<div class="error">Error loading perspectives: ${error.message}</div>`;
+        console.log("ERROR: " + error.message);
     }
 }
 
 // Load specific perspective
 async function loadPerspective(id) {
     try {
-        const response = await fetch(`${apiUrl}/api/perspectives/${id}`);
-        const perspective = await response.json();
-        
-        // Update the perspective map
-        const mapElement = document.getElementById('perspective-map');
-        const cells = mapElement.querySelectorAll('.perspective-cell');
-        
-        // Map the perspective data to the 3x3 grid
-        const mapData = [
-            perspective.map.aspirational.back,
-            perspective.map.aspirational.center,
-            perspective.map.aspirational.front,
-            perspective.map.operational.back,
-            perspective.map.operational.center,
-            perspective.map.operational.front,
-            perspective.map.foundational.back,
-            perspective.map.foundational.center,
-            perspective.map.foundational.front
-        ];
-        
-        cells.forEach((cell, index) => {
-            cell.textContent = mapData[index];
-            cell.style.backgroundColor = '#e3f2fd';
-        });
-        
-        // Add title
-        const container = document.getElementById('perspective-container');
-        container.innerHTML = `
-            <h4>Current Perspective: ${perspective.name}</h4>
-            <p>${perspective.description}</p>
-        ` + container.innerHTML;
-        
+        const response = await fetch(`${apiUrl}/api/server?action=select-perspective&id=${id}`);
+        const data = await response.json();
+        processCommands(data);
     } catch (error) {
-        alert(`Error loading perspective: ${error.message}`);
+        console.log("ERROR: " + error.message);
+    }
+}
+
+//
+// command handlers
+//
+const commandHandlers = {
+    "warn": doWarn,
+    "show-perspective-list": doShowPerspectiveList,
+    "show-perspective": doShowPerspective
+}
+
+function doWarn(commandObj) {
+    console.log("Server Warning: " + commandObj.message);
+}
+
+function doShowPerspectiveList(commandObj) {
+    let html = '<ul>';
+    commandObj.perspectives.forEach(perspective => {
+        html += `
+            <li>
+                <strong>${perspective.name}</strong> - ${perspective.description}
+                <button onclick="loadPerspective('${perspective.id}')" style="margin-left: 10px;">Load</button>
+            </li>
+        `;
+    });
+    html += '</ul>';
+    
+    perspectivesList.innerHTML = html;
+}
+
+function doShowPerspective(commandObj) {
+    // Update the perspective map
+    const mapElement = document.getElementById('perspective-map');
+    const cells = mapElement.querySelectorAll('.perspective-cell');
+    
+    // Map the perspective data to the 3x3 grid
+    const perspective = commandObj.perspective;
+    const mapData = [
+        perspective.map.aspirational.back,
+        perspective.map.aspirational.center,
+        perspective.map.aspirational.front,
+        perspective.map.operational.back,
+        perspective.map.operational.center,
+        perspective.map.operational.front,
+        perspective.map.foundational.back,
+        perspective.map.foundational.center,
+        perspective.map.foundational.front
+    ];
+    
+    cells.forEach((cell, index) => {
+        cell.textContent = mapData[index];
+        cell.style.backgroundColor = '#e3f2fd';
+    });
+    
+    // Add title
+    const container = document.getElementById('perspective-container');
+    container.innerHTML = `
+        <h4>Current Perspective: ${perspective.name}</h4>
+        <p>${perspective.description}</p>
+    ` + container.innerHTML;
+}
+
+//
+// process all the commands in a command array
+//
+function processCommands(arr) {
+    for (const commandObj of arr) {
+        console.log("Command:" + JSON.stringify(commandObj));
+        const command = commandObj.command;
+        if (!command) {
+            console.log('command missing from ' + JSON.stringify(commandObj));
+            continue;
+        }
+        const handler = commandHandlers[command];
+        if (!handler) {
+            console.log('No handler for command:' + command);
+            continue;
+        }
+        handler(commandObj);
     }
 }
 

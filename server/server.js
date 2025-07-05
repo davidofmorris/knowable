@@ -28,26 +28,32 @@ app.use((req, res, next) => {
 
 // Routes
 app.get('/api/hello', (req, res) => {
+  const instanceId = req.headers['instance'] || 'default';
   res.json({ 
-    message: 'Hello from your knowledge graph backend!',
+    message: 'Hello from knowable server!',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    instance: req.instance
+    instance: instanceId
   });
 });
 
 app.get('/api/health', (req, res) => {
+  const instanceId = req.headers['instance'] || 'default';
   res.json({ 
     status: 'healthy',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
-    instance: req.instance
+    instance: instanceId
   });
 });
 
 // Import routes
+/* OLD
 const perspectiveRoutes = require('./routes/perspectives');
 app.use('/api/perspectives', perspectiveRoutes);
+*/
+const serverRouter = require('./routes/server-router');
+app.use('/api/server', serverRouter);
 
 // Root endpoint
 app.get('/', (req, res) => {

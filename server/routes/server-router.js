@@ -132,4 +132,7 @@ router.get('/', (req, res) => {
   res.json(handler(req, res));
 });
 
+// Export handlers for WebSocket reuse
 module.exports = router;
+module.exports.onRefreshPerspectiveList = onRefreshPerspectiveList;
+module.exports.onSelectPerspective = onSelectPerspective;

@@ -15,7 +15,9 @@
       "Bash(curl:*)",
       "Bash(npm install:*)",
       "Bash(chmod:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npm start)",
+      "Bash(kill:*)"
     ],
     "deny": []
   }

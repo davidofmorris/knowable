@@ -1,9 +1,19 @@
 // Configuration
 const API_BASE_URL = 'https://knowable-api.up.railway.app'; // Will be updated when Railway is deployed
 const LOCAL_API_URL = 'http://localhost:3000'; // For local development
+const WS_BASE_URL = 'wss://knowable-api.up.railway.app'; // WebSocket production URL
+const LOCAL_WS_URL = 'ws://localhost:3000'; // WebSocket local development
 
 // Determine which API URL to use
 const apiUrl = window.location.hostname === 'localhost' ? LOCAL_API_URL : API_BASE_URL;
+const wsUrl = window.location.hostname === 'localhost' ? LOCAL_WS_URL : WS_BASE_URL;
+
+// WebSocket connection state
+let ws = null;
+let wsConnected = false;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 2000; // 2 seconds
 
 // DOM elements
 const connectionStatus = document.getElementById('connection-status');
@@ -33,6 +43,12 @@ async function testConnection() {
 
 // Load perspectives from API
 async function loadPerspectives() {
+    // Try WebSocket first, fallback to HTTP
+    if (sendWebSocketMessage('refresh-perspective-list')) {
+        return; // WebSocket message sent successfully
+    }
+    
+    // Fallback to HTTP
     try {
         const response = await fetch(`${apiUrl}/api/server?action=refresh-perspective-list`);
         const data = await response.json();
@@ -44,6 +60,12 @@ async function loadPerspectives() {
 
 // Load specific perspective
 async function loadPerspective(id) {
+    // Try WebSocket first, fallback to HTTP
+    if (sendWebSocketMessage('select-perspective', { id })) {
+        return; // WebSocket message sent successfully
+    }
+    
+    // Fallback to HTTP
     try {
         const response = await fetch(`${apiUrl}/api/server?action=select-perspective&id=${id}`);
         const data = await response.json();
@@ -133,7 +155,92 @@ function processCommands(arr) {
     }
 }
 
+// WebSocket connection management
+function connectWebSocket() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        return; // Already connected
+    }
+    
+    try {
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+            wsConnected = true;
+            reconnectAttempts = 0;
+            updateConnectionStatus('websocket');
+            
+            // Load initial data
+            loadPerspectives();
+        };
+        
+        ws.onmessage = (event) => {
+            try {
+                const commands = JSON.parse(event.data);
+                processCommands(commands);
+            } catch (error) {
+                console.error('WebSocket message parse error:', error);
+            }
+        };
+        
+        ws.onclose = () => {
+            console.log('WebSocket disconnected');
+            wsConnected = false;
+            ws = null;
+            
+            // Attempt to reconnect
+            if (reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                console.log(`Reconnecting in ${reconnectDelay}ms (attempt ${reconnectAttempts})`);
+                setTimeout(connectWebSocket, reconnectDelay);
+            } else {
+                console.log('Max reconnection attempts reached, falling back to HTTP');
+                updateConnectionStatus('http');
+            }
+        };
+        
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            wsConnected = false;
+        };
+        
+    } catch (error) {
+        console.error('WebSocket connection failed:', error);
+        wsConnected = false;
+        updateConnectionStatus('http');
+    }
+}
+
+// Send WebSocket message
+function sendWebSocketMessage(action, data = {}) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        const message = { action, ...data };
+        ws.send(JSON.stringify(message));
+        return true;
+    }
+    return false;
+}
+
+// Update connection status display
+function updateConnectionStatus(type) {
+    const statusMap = {
+        'websocket': '<div class="success">🔗 Connected via WebSocket</div>',
+        'http': '<div class="warning">📡 Connected via HTTP (fallback)</div>',
+        'disconnected': '<div class="error">❌ Disconnected</div>'
+    };
+    
+    connectionStatus.innerHTML = statusMap[type] || statusMap['disconnected'];
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    testConnection();
+    // Try WebSocket first, fallback to HTTP
+    connectWebSocket();
+    
+    // Also test HTTP connection as fallback
+    setTimeout(() => {
+        if (!wsConnected) {
+            testConnection();
+        }
+    }, 3000);
 });

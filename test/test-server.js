@@ -12,35 +12,39 @@ const apiUrl = (process.env.LOCAL ? LOCAL_API_URL : API_BASE_URL) + '/api/';
 const testResults = [];
 
 // Helper function to run a test
-async function runTest(testName, testFunction) {
+async function runTest(testFunction) {
     const startTime = Date.now();
+    const testData = {};
     try {
-        await testFunction();
+        await testFunction(testData);
         const duration = Date.now() - startTime;
         testResults.push({
-            name: testName,
+            ...testData,
             status: 'PASS',
             duration: duration,
             error: null
         });
-        console.log(`✅ ${testName} - ${duration}ms`);
+        console.log(`✅ ${testData.name} - ${duration}ms`);
     } catch (error) {
         const duration = Date.now() - startTime;
         testResults.push({
-            name: testName,
+            ...testData,
             status: 'FAIL',
             duration: duration,
             error: error.message
         });
-        console.log(`❌ ${testName} - ${error.message}`);
+        console.log(`❌ ${testData.name} - ${error.message}`);
     }
 }
 
 //
 // Tests
 //
-async function testHelloEndpoint() {
-    const response = await fetch(`${apiUrl}hello`);
+async function testHelloEndpoint(testData) {
+    testData.name = 'Hello Endpoint Test';
+    const URL = `${apiUrl}hello`;
+    testData.URL = URL;
+    const response = await fetch(URL);
     const data = await response.json();
     testResponseStatus(response, 200);
     if (!data.message) {
@@ -48,26 +52,38 @@ async function testHelloEndpoint() {
     }
 }
 
-async function testHealthEndpoint() {
-    const response = await fetch(`${apiUrl}health`);
+async function testHealthEndpoint(testData) {
+    testData.name = 'Health Endpoint Test';
+    const URL = `${apiUrl}health`;
+    testData.URL = URL;
+    const response = await fetch(URL);
     const data = await response.json();
     testResponseStatus(response, 200);
 }
 
-async function testErrorHandling() {
-    const response = await fetch(`${apiUrl}nonexistent`);
+async function testErrorHandling(testData) {
+    testData.name = 'Error Handling Test';
+    const URL = `${apiUrl}nonexistent`;
+    testData.URL = URL;
+    const response = await fetch(URL);
     testResponseStatus(response, 404);
 }
 
-async function testRefreshPerspectiveList() {
-    const response = await fetch(`${apiUrl}server?action=refresh-perspective-list`);
+async function testRefreshPerspectiveList(testData) {
+    testData.name = 'Refresh Perspective List';
+    const URL = `${apiUrl}server?action=refresh-perspective-list`;
+    testData.URL = URL;
+    const response = await fetch(URL);
     const data = await response.json(); 
     testResponseStatus(response, 200);
     testCommandArray(data);  
 }
 
-async function testSelectPerspective() {
-    const response = await fetch(`${apiUrl}server?action=select-perspective`);
+async function testSelectPerspective(testData) {
+    testData.name = 'Select Perspective';
+    const URL = `${apiUrl}server?action=select-perspective`;
+    testData.URL = URL;
+    const response = await fetch(URL);
     const data = await response.json();
     testResponseStatus(response, 200);
     testCommandArray(data);  
@@ -116,12 +132,12 @@ async function runAllTests() {
     testResults.length = 0;
     
     // Run all your tests
-    await runTest('Hello Endpoint Test', testHelloEndpoint);
-    await runTest('Health Endpoint Test', testHealthEndpoint);
-    await runTest('Error Handling Test', testErrorHandling);
+    await runTest(testHelloEndpoint);
+    await runTest(testHealthEndpoint);
+    await runTest(testErrorHandling);
 
-    await runTest('Refresh Perspective List', testRefreshPerspectiveList);
-    await runTest('Select Perspective', testSelectPerspective);
+    await runTest(testRefreshPerspectiveList);
+    await runTest(testSelectPerspective);
     
     console.log('\n📊 Test completed!');
     console.log(`Total: ${testResults.length} tests, ${testResults.filter(t => t.status === 'PASS').length} passed, ${testResults.filter(t => t.status === 'FAIL').length} failed`);

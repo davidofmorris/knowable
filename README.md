@@ -27,7 +27,8 @@ knowable/
 │   ├── Inception.md
 │   ├── Ontology.md
 │   ├── Phase1.md
-│   └── Phase2.md
+│   ├── Phase2.md
+│   └── Phase3.md
 ├── start-dev.sh           # Development script
 ├── LICENSE
 └── README.md

@@ -5,8 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Knowable is a knowledge graph explorer built with a split-stack architecture:
-- **Backend**: Node.js/Express server (Railway deployment)
+- **Backend**: Node.js/Express/WebSocket server (Railway deployment)
 - **Frontend**: Static HTML/JS (GitHub Pages)
+- **Communication**: WebSocket-first with real-time bidirectional messaging
 - **Philosophy**: Server-driven architecture with client as "display device"
 
 The application is based on a normative ontology framework exploring structured identity (center, mind, boundary) and perspective mapping across aspirational, operational, and foundational levels.
@@ -27,6 +28,7 @@ The application is based on a normative ontology framework exploring structured 
 - Server maintains separate state objects for each client session
 - Sessions identified by instance headers sent from client
 - Action-command protocol enables stateful interactions between client and server
+- WebSocket connections maintain persistent session state with automatic reconnection
 
 ## Development Commands
 
@@ -66,22 +68,25 @@ npm start           # Start test server
 ## API Endpoints
 
 - `GET /` - API information and available endpoints
-- `GET /api/hello` - Hello world with timestamp and instance support
-- `GET /api/health` - Server health check with uptime and instance support
-- `GET /api/server` - Action-command protocol endpoint (accepts action query parameters)
+- `GET /help` - API information and available endpoints
+- `GET /status` - Server status with uptime and instance support
+- `GET /api/server` - Action-command protocol endpoint (WebSocket primary, HTTP fallback)
 
 ## Action-Command Protocol
 
 The server implements an action-command protocol where:
-- Client sends actions via query parameters to `/api/server?action=<action-name>`
+- Client sends actions primarily via WebSocket messages to the server
+- HTTP fallback available via query parameters to `/api/server?action=<action-name>`
 - Server processes actions in the context of the session state
 - Server responds with an array of commands for the client to execute
 
 ### Available Actions
+- `show-app` - Initialize application and load default perspective list
 - `refresh-perspective-list` - Request updated perspective list
 - `select-perspective` - Select a specific perspective by ID
 
 ### Command Types
+- `show-status` - Display connection status and instance information
 - `show-perspective-list` - Display available perspectives
 - `show-perspective` - Display selected perspective details
 - `clear-perspective` - Clear current perspective
@@ -89,13 +94,12 @@ The server implements an action-command protocol where:
 
 ## Frontend-Backend Integration
 
-- Client determines API URL based on hostname (localhost vs deployed)
-- **API URL Configuration**: Production backend URL set to `https://knowable-api.up.railway.app`
-- **Environment Detection**: Automatically switches between local (`http://localhost:3000`) and production URLs
-- **Action-Command Protocol**: Client sends actions via query parameters, server responds with command arrays
+- **WebSocket-First Communication**: Primary communication via WebSocket with automatic reconnection
+- **Environment Detection**: Automatically switches between local (`ws://localhost:3000`) and production (`wss://knowable-api.up.railway.app`) WebSocket URLs
+- **Action-Command Protocol**: Client sends actions primarily via WebSocket messages, HTTP fallback available
 - **Session Management**: Instance headers maintain separate server state for each client session
-- Connection status monitoring with error handling
-- Real-time API response display and testing interface
+- **Connection Status Monitoring**: Real-time WebSocket connection status with error handling
+- **Real-time Bidirectional Communication**: Server can push updates to client without request
 
 ## Deployment
 

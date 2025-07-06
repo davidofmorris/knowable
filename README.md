@@ -4,8 +4,9 @@ A fractal, hierarchical knowledge graph explorer built with Node.js and vanilla 
 
 ## Architecture
 
-- **Backend**: Node.js + Express (Railway deployment)
+- **Backend**: Node.js + Express + WebSocket (Railway deployment)
 - **Frontend**: Static HTML/JS (GitHub Pages)
+- **Communication**: WebSocket-first with real-time bidirectional messaging
 - **Philosophy**: Server-driven architecture with client as "display device"
 
 ## Project Structure
@@ -84,6 +85,7 @@ The backend implements instance-based session management:
 - Sessions are identified by instance headers
 - Server maintains state objects for each active session
 - Action-command protocol enables stateful interactions
+- WebSocket connections maintain persistent session state with automatic reconnection
 
 ### Testing
 - Automated test suite runs on port 8081
@@ -93,16 +95,17 @@ The backend implements instance-based session management:
 ## API Endpoints
 
 - `GET /` - Server information and available endpoints
-- `GET /api/hello` - Hello world with timestamp and instance support
-- `GET /api/health` - Health check with uptime and instance support
-- `GET /api/server` - Action-command protocol endpoint (accepts action query parameters)
+- `GET /help` - Server information and available endpoints
+- `GET /status` - Server status with uptime and instance support
+- `GET /api/server` - Action-command protocol endpoint (WebSocket and HTTP support)
 
 ## Features
 
-- **Action-Command Protocol**: Stateful client-server interactions using query parameters
+- **WebSocket Real-time Communication**: Primary communication protocol with automatic reconnection
+- **Action-Command Protocol**: Stateful client-server interactions using WebSocket and HTTP
 - **Instance-Based Sessions**: Server maintains separate state objects for each client session
 - **Multi-Server Development**: Integrated backend, frontend, and test servers
-- **Real-time API Integration**: Frontend dynamically communicates with backend
+- **Real-time API Integration**: Frontend dynamically communicates with backend via WebSocket
 - **Comprehensive Testing**: Automated test suite with JSON results
 - **Railway Ready**: Configured for one-click deployment
 
@@ -119,8 +122,8 @@ For comprehensive documentation of the philosophical foundations and project evo
 
 ## Next Steps
 
-1. **WebSocket Implementation**: Add real-time bidirectional communication (see Phase2.md)
-2. **Enhanced Action-Command Protocol**: Expand command types and client-side command processing
-3. **Persistence Layer**: Add database integration for session state persistence
-4. **Advanced Knowledge Graph Features**: Implement graph traversal and visualization
-5. **User Authentication**: Add secure user sessions and data isolation
+1. **Enhanced Action-Command Protocol**: Expand command types and client-side command processing
+2. **Persistence Layer**: Add database integration for session state persistence
+3. **Advanced Knowledge Graph Features**: Implement graph traversal and visualization
+4. **User Authentication**: Add secure user sessions and data isolation
+5. **WebSocket Enhancements**: Add connection recovery and message queuing

@@ -13,21 +13,22 @@ A fractal, hierarchical knowledge graph explorer built with Node.js and vanilla 
 
 ```
 knowable/
-├── docs/           # GitHub Pages frontend
-│   ├── index.html  # Main application interface
-│   └── app.js      # Client-side logic
-├── server/         # Node.js backend
-│   ├── server.js   # Express server
+├── docs/                  # GitHub Pages frontend
+│   ├── index.html         # Main application interface
+│   └── app.js             # Client-side logic
+├── server/                # Node.js backend
+│   ├── server.js          # Express server
+│   ├── action-handlers.js # Maps actions to handlers
 │   ├── package.json
-│   └── routes/     # API endpoints
-│       └── server-router.js
-├── test/           # Test infrastructure
+├── test/                  # Test infrastructure
 │   ├── test-server.js
 │   └── package.json
-├── notes/          # Project documentation
-│   ├── Phase2.md
-│   └── A Normative Ontology.md
-├── start-dev.sh    # Development script
+├── notes/                 # Project documentation
+│   ├── Inception.md
+│   ├── Ontology.md
+│   ├── Phase1.md
+│   └── Phase2.md
+├── start-dev.sh           # Development script
 ├── LICENSE
 └── README.md
 ```

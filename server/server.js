@@ -30,10 +30,14 @@ app.use((req, res, next) => {
 });
 
 //
-// Server interface
+// generic command factories
 //
-const serverRouter = require('./routes/server-router');
-app.use('/api/server', serverRouter);
+function warn(message) {
+  return {
+    command: "warn",
+    message: message,
+  }
+}
 
 // 
 // help
@@ -81,8 +85,33 @@ app.use((req, res, next) => {
   res.status(404).send('Sorry, the page you are looking for does not exist.');
 });
 
+//
+// Server interface
+//
+const handlers = require('./action-handlers');
 
-// WebSocket server setup
+//
+// http server interface
+//
+app.get('/api/server', (req, res) => {
+  const action = req.query.action;
+  if (!action) {
+    res.json( [warn('No action parameter.')] );
+    return;
+  }
+
+  const handler = handlers[action];
+  if (!handler) {
+    res.json( [warn(`No handler for action: ${action}.`)] );
+    return;
+  }
+
+  res.json(handler(req, res));
+});
+
+//
+// WebSocket server interface
+//
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws, req) => {
@@ -106,7 +135,7 @@ wss.on('connection', (ws, req) => {
       const { action, ...actionData } = data;
       
       if (!action) {
-        ws.send(JSON.stringify([{ command: 'warn', message: 'No action parameter.' }]));
+        ws.send(JSON.stringify( [warn('No action parameter.')] ));
         return;
       }
       
@@ -127,7 +156,7 @@ wss.on('connection', (ws, req) => {
       
     } catch (error) {
       console.error('WebSocket message error:', error);
-      ws.send(JSON.stringify([{ command: 'warn', message: 'Invalid message format.' }]));
+      ws.send(JSON.stringify( [warn('Invalid message format.')] ));
     }
   });
   
@@ -142,12 +171,8 @@ wss.on('connection', (ws, req) => {
   });
 });
 
-// Handle WebSocket actions by reusing server router logic
+// Handle WebSocket actions using action handlers
 function handleWebSocketAction(req, res, action) {
-  // Import the handlers map directly
-  const serverRouter = require('./routes/server-router');
-  const handlers = serverRouter.handlers;
-  
   const handler = handlers[action];
   if (!handler) {
     res.json([{ command: 'warn', message: `No handler for action: ${action}.` }]);

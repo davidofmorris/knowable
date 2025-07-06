@@ -19,7 +19,8 @@
       "Bash(npm start)",
       "Bash(kill:*)",
       "Bash(rg:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

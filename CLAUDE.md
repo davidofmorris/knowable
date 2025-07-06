@@ -15,8 +15,8 @@ The application is based on a normative ontology framework exploring structured 
 ## Architecture
 
 ### Backend Structure (`server/`)
-- `server.js`: Main Express server with CORS, JSON middleware, session management, and route mounting
-- `routes/server-router.js`: Action-command protocol implementation with perspective data
+- `server.js`: Main Express server with CORS, JSON middleware, session management, and action-command protocol routing
+- `action-handlers.js`: Action-command protocol implementation with perspective data and business logic
 - Session state management using instance headers for stateful client-server interactions
 
 ### Frontend Structure (`docs/`)
@@ -110,9 +110,9 @@ The server implements an action-command protocol where:
 
 ## Key Files for Architecture Understanding
 
-- `server/routes/server-router.js:5-50` - Sample perspective data and action handlers
-- `server/routes/server-router.js:119-133` - Action-command protocol implementation
+- `server/action-handlers.js:5-50` - Sample perspective data and action handlers
+- `server/action-handlers.js:75-150` - Action handler implementations
 - `server/server.js:15-27` - Session management middleware
-- `server/server.js:50-52` - Route mounting pattern
+- `server/server.js:35-55` - Action-command protocol routing
 - `docs/app.js` - Client-side API integration and testing interface
 - `docs/index.html` - Main UI with real-time backend integration

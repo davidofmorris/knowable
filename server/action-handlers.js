@@ -1,6 +1,3 @@
-const express = require('express');
-const router = express.Router();
-
 // Sample perspective data
 const samplePerspectives = [
   {
@@ -57,15 +54,8 @@ const handlers = {
 };
 
 //
-// command factories
+// server command factories
 //
-function warn(message) {
-  return {
-    command: "warn",
-    message: message,
-  }
-}
-
 function showStatusCommand(instance) {
   return {
     command: "show-status",
@@ -103,8 +93,20 @@ function onShowApp(req, res) {
   const state = req.sessionState;
 
   commands.push(showStatusCommand(state.instance));
-  commands.push(clearPerspectiveCommand());
   commands.push(showPerspectiveListCommand(samplePerspectives));
+
+  const perspectiveId = state.activePerspectiveId;
+  var perspective; 
+  if (perspectiveId) {
+    perspective = findPerspective(perspectiveId);
+  }
+
+  if (perspective) {
+    commands.push(showPerspectiveCommand(perspective));
+  } else {
+    commands.push(clearPerspectiveCommand());
+  }
+
   return commands;
 }
 
@@ -118,39 +120,27 @@ function onRefreshPerspectiveList(req, res) {
 function onSelectPerspective(req, res) {
   // on: select-perspective (id)
   const commands = [];
+  const state = req.sessionState;
   const id = req.query.id || 0; // return top item if none is specified
-  const perspective = samplePerspectives.find(p => p.id === id);
+  const perspective = findPerspective(id);
 
   if (!perspective) {
+    state.activePerspectiveId = -1;
     commands.push(warn(`Perspective ${id} not found.`));
     commands.push(clearPerspectiveCommand());
     commands.push(showPerspectiveListCommand(samplePerspectives));
   } else {
+    state.activePerspectiveId = id;
     commands.push(showPerspectiveCommand(perspective));
   }
 
   return commands;
 }
 
-//
-// Handle action sent to the server endpoint
-//
-router.get('/', (req, res) => {
-  const action = req.query.action;
-  if (!action) {
-    res.json( [warn('No action parameter.')] );
-    return;
-  }
+function findPerspective(id) {
+  return samplePerspectives.find(p => p.id === id);
+}
 
-  const handler = handlers[action];
-  if (!handler) {
-    res.json( [warn('No handler for action: ${action}.')] );
-    return;
-  }
-
-  res.json(handler(req, res));
-});
-
-// Export handlers for WebSocket reuse
-module.exports = router;
-module.exports.handlers = handlers;
+module.exports = {
+  handlers
+};

@@ -23,11 +23,19 @@ const apiResponse = document.getElementById('api-response');
 const perspectivesList = document.getElementById('perspectives-list');
 
 function initInstance() {
-    if (!window.windowId) {
-        window.windowId = `session-${Math.random().toString(36).substr(2, 9)}`;
-        console.log(`session: ${window.windowId}`);
+    // Try to get existing instance from localStorage
+    let instance = sessionStorage.getItem('knowable-instance');
+    
+    if (!instance) {
+        // Start new instance
+        instance = `session-${Math.random().toString(36).substr(2, 9)}`;
+        sessionStorage.setItem('knowable-instance', instance);
+        console.log(`New session created: ${instance}`);
+    } else {
+        console.log(`Restored session: ${instance}`);
     }
-    return window.windowId;
+    
+    return instance;
 }
 
 // Show App - send first action to server

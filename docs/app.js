@@ -4,7 +4,7 @@ const LOCAL_API_URL = 'http://localhost:3000'; // For local development
 const WS_BASE_URL = 'wss://knowable-api.up.railway.app'; // WebSocket production URL
 const LOCAL_WS_URL = 'ws://localhost:3000'; // WebSocket local development
 
-const INSTANCE_ID = initInstanceId();
+const INSTANCE = initInstance();
 
 // Determine which API URL to use
 const apiUrl = window.location.hostname === 'localhost' ? LOCAL_API_URL : API_BASE_URL;
@@ -22,7 +22,7 @@ const connectionStatus = document.getElementById('connection-status');
 const apiResponse = document.getElementById('api-response');
 const perspectivesList = document.getElementById('perspectives-list');
 
-function initInstanceId() {
+function initInstance() {
     if (!window.windowId) {
         window.windowId = `session-${Math.random().toString(36).substr(2, 9)}`;
         console.log(`session: ${window.windowId}`);
@@ -33,8 +33,8 @@ function initInstanceId() {
 // Show App - send first action to server
 // - called from ws.onopen event in connectWebSocket()
 async function showApp() {
-    // Send "load-app" action
-    const success = sendWebSocketMessage('show-app', { instance: INSTANCE_ID });
+    // Send "show-app" action
+    const success = sendWebSocketMessage('show-app');
     if (!success) {
         updateConnectionStatus('disconnected');
     }
@@ -152,7 +152,7 @@ function connectWebSocket() {
     }
     
     try {
-        ws = new WebSocket(wsUrl);
+        ws = new WebSocket(wsUrl + '?instance=' + INSTANCE);
         
         ws.onopen = () => {
             console.log('WebSocket connected');

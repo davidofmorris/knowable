@@ -54,11 +54,14 @@ async function testHelp(testData) {
 
 async function testStatus(testData) {
     testData.name = 'Status Test';
-    const URL = `${apiUrl}status`;
+    const URL = `${apiUrl}status?instance=test`;
     testData.URL = URL;
     const response = await fetch(URL);
     const data = await response.json();
     testResponseStatus(response, 200);
+    if (data.instance != 'test') {
+        throw new Error(`Wrong instance name in status response. Expected 'test', found '${data.instance}'.`)
+    }
 }
 
 async function testErrorHandling(testData) {
@@ -69,8 +72,35 @@ async function testErrorHandling(testData) {
     testResponseStatus(response, 404);
 }
 
+async function testShowApp(testData) {
+    testData.name = 'Action: show-app';
+    const URL = `${apiUrl}server?action=show-app&instance=test`;
+    testData.URL = URL;
+    const response = await fetch(URL);
+    const data = await response.json(); 
+    testResponseStatus(response, 200);
+    testCommandArray(data);
+    // verify instance value in 'show-status' command
+    var commandsFound = "Found: ";
+    var showStatusCommand;
+    for (let i = 0; i < data.length; i++) {
+        const commandObj = data[i];
+        commandsFound += commandObj + ", ";
+        if (commandObj.command === 'show-status') {
+            showStatusCommand = commandObj;
+            break;
+        }
+    }
+    if (!showStatusCommand) {
+       throw new Error(`Missing command in response: show-status: ` + commandsFound);
+     }
+    if (showStatusCommand.instance != 'test') {
+       throw new Error(`Wrong instance name in show-status command. Expected 'test', found '${showStatusCommand.instance}'.`)
+    }
+}
+
 async function testRefreshPerspectiveList(testData) {
-    testData.name = 'Refresh Perspective List';
+    testData.name = 'Action: refresh-perspective-list';
     const URL = `${apiUrl}server?action=refresh-perspective-list`;
     testData.URL = URL;
     const response = await fetch(URL);
@@ -80,7 +110,7 @@ async function testRefreshPerspectiveList(testData) {
 }
 
 async function testSelectPerspective(testData) {
-    testData.name = 'Select Perspective';
+    testData.name = 'Action: select-perspective';
     const URL = `${apiUrl}server?action=select-perspective`;
     testData.URL = URL;
     const response = await fetch(URL);
@@ -136,6 +166,7 @@ async function runAllTests() {
     await runTest(testStatus);
     await runTest(testErrorHandling);
 
+    await runTest(testShowApp);
     await runTest(testRefreshPerspectiveList);
     await runTest(testSelectPerspective);
     

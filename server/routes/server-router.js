@@ -66,10 +66,10 @@ function warn(message) {
   }
 }
 
-function showStatusCommand(instanceId) {
+function showStatusCommand(instance) {
   return {
     command: "show-status",
-    instanceId: instanceId
+    instance: instance
   }
 }
 
@@ -102,7 +102,7 @@ function onShowApp(req, res) {
   const commands = [];
   const state = req.sessionState;
 
-  commands.push(showStatusCommand(state.instanceId));
+  commands.push(showStatusCommand(state.instance));
   commands.push(clearPerspectiveCommand());
   commands.push(showPerspectiveListCommand(samplePerspectives));
   return commands;
@@ -153,6 +153,4 @@ router.get('/', (req, res) => {
 
 // Export handlers for WebSocket reuse
 module.exports = router;
-module.exports.onShowApp = onShowApp;
-module.exports.onRefreshPerspectiveList = onRefreshPerspectiveList;
-module.exports.onSelectPerspective = onSelectPerspective;
+module.exports.handlers = handlers;

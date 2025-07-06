@@ -18,14 +18,14 @@ app.use(express.json());
 
 // Session middleware - extract instance header
 app.use((req, res, next) => {
-  const instanceId = req.headers['instance'] || 'default';
+  const instance = req.headers['instance'] || req.query.instance || 'default';
   
   // Initialize session state if it doesn't exist
-  if (!sessionStates.has(instanceId)) {
-    sessionStates.set(instanceId, {"instanceId": instanceId});
+  if (!sessionStates.has(instance)) {
+    sessionStates.set(instance, {"instance": instance});
   }
   
-  req.sessionState = sessionStates.get(instanceId);
+  req.sessionState = sessionStates.get(instance);
   next();
 });
 
@@ -61,7 +61,7 @@ app.get('/api/help', (req, res) => { res.json(helpResponse()); });
 // status
 //
 function statusResponse(req) {
-  const instanceId = req.headers['instance'] || 'default';
+  const instance = req.headers['instance'] || req.query.instance || 'default';
   return {
     name: 'Knowable Server',
     version: '1.0.0',
@@ -69,7 +69,7 @@ function statusResponse(req) {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
-    instance: instanceId
+    instance: instance
   }
 }
 
@@ -90,15 +90,15 @@ wss.on('connection', (ws, req) => {
   
   // Extract instance ID from query params or headers
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const instanceId = url.searchParams.get('instance') || req.headers['instance'] || 'default';
+  const instance = url.searchParams.get('instance') || req.headers['instance'] || 'default';
   
   // Initialize session state if it doesn't exist
-  if (!sessionStates.has(instanceId)) {
-    sessionStates.set(instanceId, {});
+  if (!sessionStates.has(instance)) {
+    sessionStates.set(instance, {"instance": instance});
   }
   
   // Store WebSocket connection
-  wsConnections.set(instanceId, ws);
+  wsConnections.set(instance, ws);
   
   ws.on('message', (message) => {
     try {
@@ -113,8 +113,7 @@ wss.on('connection', (ws, req) => {
       // Create mock req/res objects to reuse existing handlers
       const mockReq = {
         query: { action, ...actionData },
-        instance: instanceId,
-        sessionState: sessionStates.get(instanceId)
+        sessionState: sessionStates.get(instance)
       };
       
       const mockRes = {
@@ -134,26 +133,20 @@ wss.on('connection', (ws, req) => {
   
   ws.on('close', () => {
     console.log('WebSocket connection closed');
-    wsConnections.delete(instanceId);
+    wsConnections.delete(instance);
   });
   
   ws.on('error', (error) => {
     console.error('WebSocket error:', error);
-    wsConnections.delete(instanceId);
+    wsConnections.delete(instance);
   });
 });
 
 // Handle WebSocket actions by reusing server router logic
 function handleWebSocketAction(req, res, action) {
-  // Import and call the action handlers directly
-  const serverRouterHandlers = require('./routes/server-router');
-  
-  // Create handlers map that mirrors server-router.js
-  const handlers = {
-    "show-app": serverRouterHandlers.onShowApp,
-    "refresh-perspective-list": serverRouterHandlers.onRefreshPerspectiveList,
-    "select-perspective": serverRouterHandlers.onSelectPerspective
-  };
+  // Import the handlers map directly
+  const serverRouter = require('./routes/server-router');
+  const handlers = serverRouter.handlers;
   
   const handler = handlers[action];
   if (!handler) {

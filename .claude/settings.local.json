@@ -17,7 +17,9 @@
       "Bash(chmod:*)",
       "Bash(node:*)",
       "Bash(npm start)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(rg:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

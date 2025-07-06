@@ -4,6 +4,8 @@ const LOCAL_API_URL = 'http://localhost:3000'; // For local development
 const WS_BASE_URL = 'wss://knowable-api.up.railway.app'; // WebSocket production URL
 const LOCAL_WS_URL = 'ws://localhost:3000'; // WebSocket local development
 
+const INSTANCE_ID = initInstanceId();
+
 // Determine which API URL to use
 const apiUrl = window.location.hostname === 'localhost' ? LOCAL_API_URL : API_BASE_URL;
 const wsUrl = window.location.hostname === 'localhost' ? LOCAL_WS_URL : WS_BASE_URL;
@@ -20,59 +22,27 @@ const connectionStatus = document.getElementById('connection-status');
 const apiResponse = document.getElementById('api-response');
 const perspectivesList = document.getElementById('perspectives-list');
 
-// Test API connection
-async function testConnection() {
-    try {
-        const response = await fetch(`${apiUrl}/api/hello`);
-        const data = await response.json();
-        
-        connectionStatus.innerHTML = '<div class="success">✓ Connected to backend successfully!</div>';
-        apiResponse.textContent = JSON.stringify(data, null, 2);
-        
-        // Load perspectives
-        loadPerspectives();
-        
-    } catch (error) {
-        connectionStatus.innerHTML = `<div class="error">✗ Connection failed: ${error.message}</div>`;
-        apiResponse.textContent = `Error: ${error.message}`;
-        
-        // Show fallback message
-        perspectivesList.innerHTML = '<div class="error">Unable to load perspectives - backend not accessible</div>';
+function initInstanceId() {
+    if (!window.windowId) {
+        window.windowId = `session-${Math.random().toString(36).substr(2, 9)}`;
+        console.log(`session: ${window.windowId}`);
     }
+    return window.windowId;
 }
 
-// Load perspectives from API
-async function loadPerspectives() {
-    // Try WebSocket first, fallback to HTTP
-    if (sendWebSocketMessage('refresh-perspective-list')) {
-        return; // WebSocket message sent successfully
-    }
-    
-    // Fallback to HTTP
-    try {
-        const response = await fetch(`${apiUrl}/api/server?action=refresh-perspective-list`);
-        const data = await response.json();
-        processCommands(data);
-    } catch (error) {
-        console.log("ERROR: " + error.message);
+// Show App - send first action to server
+// - called from ws.onopen event in connectWebSocket()
+async function showApp() {
+    // Send "load-app" action
+    const success = sendWebSocketMessage('show-app', { instance: INSTANCE_ID });
+    if (!success) {
+        updateConnectionStatus('disconnected');
     }
 }
 
 // Load specific perspective
-async function loadPerspective(id) {
-    // Try WebSocket first, fallback to HTTP
-    if (sendWebSocketMessage('select-perspective', { id })) {
-        return; // WebSocket message sent successfully
-    }
-    
-    // Fallback to HTTP
-    try {
-        const response = await fetch(`${apiUrl}/api/server?action=select-perspective&id=${id}`);
-        const data = await response.json();
-        processCommands(data);
-    } catch (error) {
-        console.log("ERROR: " + error.message);
-    }
+async function selectPerspective(id) {
+    sendWebSocketMessage('select-perspective', { id });
 }
 
 //
@@ -80,6 +50,8 @@ async function loadPerspective(id) {
 //
 const commandHandlers = {
     "warn": doWarn,
+    "show-status": doShowStatus,
+    "clear-perspective": doClearPerspective,
     "show-perspective-list": doShowPerspectiveList,
     "show-perspective": doShowPerspective
 }
@@ -88,13 +60,28 @@ function doWarn(commandObj) {
     console.log("Server Warning: " + commandObj.message);
 }
 
+function doShowStatus(commandObj) {
+    updateConnectionStatus('websocket');
+    apiResponse.textContent = JSON.stringify(commandObj, null, 2);
+}
+
+function doClearPerspective(commandObj) {
+    const headerElement = document.getElementById('perspective-header');
+    const mapElement = document.getElementById('perspective-map');
+    headerElement.innerHTML = `
+        <h3>Current Perspective: none</h3>
+        <p><i>Select a perspective to begin...</i></p>
+    `;
+    mapElement.style.display='none';
+}
+
 function doShowPerspectiveList(commandObj) {
     let html = '<ul>';
     commandObj.perspectives.forEach(perspective => {
         html += `
             <li>
                 <strong>${perspective.name}</strong> - ${perspective.description}
-                <button onclick="loadPerspective('${perspective.id}')" style="margin-left: 10px;">Load</button>
+                <button onclick="selectPerspective('${perspective.id}')" style="margin-left: 10px;">Load</button>
             </li>
         `;
     });
@@ -104,12 +91,20 @@ function doShowPerspectiveList(commandObj) {
 }
 
 function doShowPerspective(commandObj) {
+    const perspective = commandObj.perspective;
+    const headerElement = document.getElementById('perspective-header');
+
+    // Add title
+    headerElement.innerHTML = `
+       <h3>Current Perspective: ${perspective.name}</h3>
+        <p>${perspective.description}</p>
+    `;
+
     // Update the perspective map
     const mapElement = document.getElementById('perspective-map');
     const cells = mapElement.querySelectorAll('.perspective-cell');
     
     // Map the perspective data to the 3x3 grid
-    const perspective = commandObj.perspective;
     const mapData = [
         perspective.map.aspirational.back,
         perspective.map.aspirational.center,
@@ -124,15 +119,10 @@ function doShowPerspective(commandObj) {
     
     cells.forEach((cell, index) => {
         cell.textContent = mapData[index];
-        cell.style.backgroundColor = '#e3f2fd';
+        //cell.style.backgroundColor = '#e3f2fd';
     });
-    
-    // Add title
-    const container = document.getElementById('perspective-container');
-    container.innerHTML = `
-        <h4>Current Perspective: ${perspective.name}</h4>
-        <p>${perspective.description}</p>
-    ` + container.innerHTML;
+
+    mapElement.style.display='grid';
 }
 
 //
@@ -170,8 +160,7 @@ function connectWebSocket() {
             reconnectAttempts = 0;
             updateConnectionStatus('websocket');
             
-            // Load initial data
-            loadPerspectives();
+            showApp(); // sends the first action: "show-app"
         };
         
         ws.onmessage = (event) => {
@@ -195,7 +184,7 @@ function connectWebSocket() {
                 setTimeout(connectWebSocket, reconnectDelay);
             } else {
                 console.log('Max reconnection attempts reached, falling back to HTTP');
-                updateConnectionStatus('http');
+                updateConnectionStatus('disconnected');
             }
         };
         
@@ -207,16 +196,20 @@ function connectWebSocket() {
     } catch (error) {
         console.error('WebSocket connection failed:', error);
         wsConnected = false;
-        updateConnectionStatus('http');
+        updateConnectionStatus('disconnected');
     }
 }
 
 // Send WebSocket message
 function sendWebSocketMessage(action, data = {}) {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        const message = { action, ...data };
-        ws.send(JSON.stringify(message));
-        return true;
+    try {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            const message = { action, ...data };
+            ws.send(JSON.stringify(message));
+            return true;
+        }
+    } catch (error) {
+        console.error('sendWebSocketMessage failed:', error);
     }
     return false;
 }
@@ -225,7 +218,6 @@ function sendWebSocketMessage(action, data = {}) {
 function updateConnectionStatus(type) {
     const statusMap = {
         'websocket': '<div class="success">🔗 Connected via WebSocket</div>',
-        'http': '<div class="warning">📡 Connected via HTTP (fallback)</div>',
         'disconnected': '<div class="error">❌ Disconnected</div>'
     };
     
@@ -236,11 +228,4 @@ function updateConnectionStatus(type) {
 document.addEventListener('DOMContentLoaded', () => {
     // Try WebSocket first, fallback to HTTP
     connectWebSocket();
-    
-    // Also test HTTP connection as fallback
-    setTimeout(() => {
-        if (!wsConnected) {
-            testConnection();
-        }
-    }, 3000);
-});
+ });

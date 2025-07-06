@@ -51,6 +51,7 @@ const samplePerspectives = [
 
 // action -> handler map
 const handlers = {
+  "show-app": onShowApp,
   "refresh-perspective-list": onRefreshPerspectiveList,
   "select-perspective": onSelectPerspective
 };
@@ -62,6 +63,13 @@ function warn(message) {
   return {
     command: "warn",
     message: message,
+  }
+}
+
+function showStatusCommand(instanceId) {
+  return {
+    command: "show-status",
+    instanceId: instanceId
   }
 }
 
@@ -89,6 +97,17 @@ function showPerspectiveCommand(perspective) {
 //
 // action handlers
 //
+function onShowApp(req, res) {
+  // on: show-app
+  const commands = [];
+  const state = req.sessionState;
+
+  commands.push(showStatusCommand(state.instanceId));
+  commands.push(clearPerspectiveCommand());
+  commands.push(showPerspectiveListCommand(samplePerspectives));
+  return commands;
+}
+
 function onRefreshPerspectiveList(req, res) {
   // on: refresh-perspective-list
   const commands = [];
@@ -134,5 +153,6 @@ router.get('/', (req, res) => {
 
 // Export handlers for WebSocket reuse
 module.exports = router;
+module.exports.onShowApp = onShowApp;
 module.exports.onRefreshPerspectiveList = onRefreshPerspectiveList;
 module.exports.onSelectPerspective = onSelectPerspective;

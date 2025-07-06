@@ -45,10 +45,10 @@ Phase Two will see a shift toward signal-based asynchronous client-server intera
 ## Action - Command protocol
 The stateful server will present a single endpoint /server. Each request will be interpreted as an "action" or event that took place in the client. The server will consider the action within the context of the session's current state, the state will be updated and a response with one or more "commands" is returned to the client. The processing of commands returned by the server should result in updates to the visible state of the application to reflect the changes to the session state on the server.
 
-## Asynchronous client-server protocol
+## Asynchronous client-server protocol (done)
 Explore the use of Web Sockets to connect client's to their active server sessions asynchronously.
 
-### Phase 2 WebSocket Implementation Plan
+### Phase 2 WebSocket Implementation Plan (done)
 1. Add WebSocket dependency - Install ws library to existing server
 2. Integrate with Express server - Add WebSocket server alongside existing HTTP routes
 3. Implement action-command protocol - Create WebSocket message handlers for client actions and server commands 

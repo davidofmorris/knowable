@@ -19,56 +19,68 @@ app.use(express.json());
 // Session middleware - extract instance header
 app.use((req, res, next) => {
   const instanceId = req.headers['instance'] || 'default';
-  req.instance = instanceId;
   
   // Initialize session state if it doesn't exist
   if (!sessionStates.has(instanceId)) {
-    sessionStates.set(instanceId, {});
+    sessionStates.set(instanceId, {"instanceId": instanceId});
   }
   
   req.sessionState = sessionStates.get(instanceId);
   next();
 });
 
-// Routes
-app.get('/api/hello', (req, res) => {
-  const instanceId = req.headers['instance'] || 'default';
-  res.json({ 
-    message: 'Hello from knowable server!',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    instance: instanceId
-  });
-});
-
-app.get('/api/health', (req, res) => {
-  const instanceId = req.headers['instance'] || 'default';
-  res.json({ 
-    status: 'healthy',
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-    instance: instanceId
-  });
-});
-
-// Import routes
+//
+// Server interface
+//
 const serverRouter = require('./routes/server-router');
 app.use('/api/server', serverRouter);
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
-    name: 'Knowable API',
+// 
+// help
+//
+function helpResponse() {
+  return {
+    name: 'Knowable Server',
     version: '1.0.0',
-    description: 'Knowledge graph explorer backend',
+    description: 'Knowable graph explorer backend',
     endpoints: {
       about: '/',
-      hello: '/api/hello',
-      health: '/api/health',
+      help: '/help',
+      about: '/status',
       server: '/api/server'
     }
-  });
+  }
+}
+
+app.get('/', (req, res) => { res.json(helpResponse()); });
+app.get('/help', (req, res) => { res.json(helpResponse()); });
+app.get('/api', (req, res) => { res.json(helpResponse()); });
+app.get('/api/help', (req, res) => { res.json(helpResponse()); });
+
+//
+// status
+//
+function statusResponse(req) {
+  const instanceId = req.headers['instance'] || 'default';
+  return {
+    name: 'Knowable Server',
+    version: '1.0.0',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    instance: instanceId
+  }
+}
+
+app.get('/status', (req, res) => { res.json(statusResponse(req)); });
+app.get('/api/status', (req, res) => { res.json(statusResponse(req)); });
+
+// Fallback handler for unmatched routes
+app.use((req, res, next) => {
+  res.status(404).send('Sorry, the page you are looking for does not exist.');
 });
+
 
 // WebSocket server setup
 const wss = new WebSocket.Server({ server });
@@ -138,6 +150,7 @@ function handleWebSocketAction(req, res, action) {
   
   // Create handlers map that mirrors server-router.js
   const handlers = {
+    "show-app": serverRouterHandlers.onShowApp,
     "refresh-perspective-list": serverRouterHandlers.onRefreshPerspectiveList,
     "select-perspective": serverRouterHandlers.onSelectPerspective
   };

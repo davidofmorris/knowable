@@ -40,21 +40,21 @@ async function runTest(testFunction) {
 //
 // Tests
 //
-async function testHelloEndpoint(testData) {
-    testData.name = 'Hello Endpoint Test';
-    const URL = `${apiUrl}hello`;
+async function testHelp(testData) {
+    testData.name = 'Help Test';
+    const URL = `${apiUrl}help`;
     testData.URL = URL;
     const response = await fetch(URL);
     const data = await response.json();
     testResponseStatus(response, 200);
-    if (!data.message) {
+    if (!data.name) {
         throw new Error('Response should contain a message field');
     }
 }
 
-async function testHealthEndpoint(testData) {
-    testData.name = 'Health Endpoint Test';
-    const URL = `${apiUrl}health`;
+async function testStatus(testData) {
+    testData.name = 'Status Test';
+    const URL = `${apiUrl}status`;
     testData.URL = URL;
     const response = await fetch(URL);
     const data = await response.json();
@@ -132,8 +132,8 @@ async function runAllTests() {
     testResults.length = 0;
     
     // Run all your tests
-    await runTest(testHelloEndpoint);
-    await runTest(testHealthEndpoint);
+    await runTest(testHelp);
+    await runTest(testStatus);
     await runTest(testErrorHandling);
 
     await runTest(testRefreshPerspectiveList);

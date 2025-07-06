@@ -80,15 +80,10 @@ function statusResponse(req) {
 app.get('/status', (req, res) => { res.json(statusResponse(req)); });
 app.get('/api/status', (req, res) => { res.json(statusResponse(req)); });
 
-// Fallback handler for unmatched routes
-app.use((req, res, next) => {
-  res.status(404).send('Sorry, the page you are looking for does not exist.');
-});
-
 //
 // Server interface
 //
-const handlers = require('./action-handlers');
+const handlers = require('./action-handlers').handlers;
 
 //
 // http server interface
@@ -106,7 +101,12 @@ app.get('/api/server', (req, res) => {
     return;
   }
 
-  res.json(handler(req, res));
+  res.json(handler(req));
+});
+
+// Fallback handler for unmatched routes
+app.use((req, res, next) => {
+  res.status(404).send('Sorry, the page you are looking for does not exist.');
 });
 
 //
@@ -179,7 +179,7 @@ function handleWebSocketAction(req, res, action) {
     return;
   }
   
-  const commands = handler(req, res);
+  const commands = handler(req);
   res.json(commands);
 }
 

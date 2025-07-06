@@ -54,6 +54,16 @@ const handlers = {
 };
 
 //
+// generic command factories
+//
+function warn(message) {
+  return {
+    command: "warn",
+    message: message,
+  }
+}
+
+//
 // server command factories
 //
 function showStatusCommand(instance) {
@@ -87,7 +97,7 @@ function showPerspectiveCommand(perspective) {
 //
 // action handlers
 //
-function onShowApp(req, res) {
+function onShowApp(req) {
   // on: show-app
   const commands = [];
   const state = req.sessionState;
@@ -110,14 +120,14 @@ function onShowApp(req, res) {
   return commands;
 }
 
-function onRefreshPerspectiveList(req, res) {
+function onRefreshPerspectiveList(_req) {
   // on: refresh-perspective-list
   const commands = [];
   commands.push(showPerspectiveListCommand(samplePerspectives));
   return commands;
 }
 
-function onSelectPerspective(req, res) {
+function onSelectPerspective(req) {
   // on: select-perspective (id)
   const commands = [];
   const state = req.sessionState;
@@ -142,5 +152,5 @@ function findPerspective(id) {
 }
 
 module.exports = {
-  handlers
+  handlers: handlers
 };

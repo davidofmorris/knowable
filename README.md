@@ -28,6 +28,8 @@ knowable/
 │   ├── scripts/           # Management scripts
 │   ├── install-services.sh
 │   └── README.md
+├── .github/workflows/     
+│   ├── static.yml         # Publishes to GitHub Pages
 ├── LICENSE
 └── README.md
 ```

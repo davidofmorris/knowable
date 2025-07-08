@@ -2,97 +2,96 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
-
-Knowable is a knowledge graph explorer built with a split-stack architecture:
-- **Backend**: Node.js/Express/WebSocket server (Railway deployment)
-- **Frontend**: Static HTML/JS (GitHub Pages)
-- **Communication**: WebSocket-first with real-time bidirectional messaging
-- **Philosophy**: Server-driven architecture with client as "display device"
-
-## Architecture
-
-### Backend Structure (`server/`)
-- `server.js`: Main Express server with CORS, JSON middleware, session management, and action-command protocol routing
-- `action-handlers.js`: Action-command protocol implementation with panel data and business logic
-- Session state management using instance headers for stateful client-server interactions
-
-### Frontend Structure (`docs/`)
-- `index.html`: Main UI with real-time API integration and testing
-- `app.js`: Client-side logic with action-command protocol implementation
-- Responsive design with status indicators and backend connection testing
-
-### Session Management
-- Server maintains separate state objects for each client session
-- Sessions identified by instance headers sent from client
-- Action-command protocol enables stateful interactions between client and server
-- WebSocket connections maintain persistent session state with automatic reconnection
-
 ## Development Commands
 
-### Recommended Development Setup
+### Server (Backend)
 ```bash
-# Install services (one-time setup)
+cd server
+npm install
+npm run dev     # Development with nodemon
+npm start       # Production
+```
+
+### Frontend (Static Files)
+```bash
+cd docs
+serve -p 8080   # Serves static files
+```
+
+### Test Server
+```bash
+cd test
+npm install
+npm start       # Starts test server on port 8081
+npm run dev     # Development with nodemon
+```
+
+### Systemd Services (Recommended)
+```bash
+# One-time setup
 cd services
 ./install-services.sh
 
-# Start all development servers
-cd scripts
-./start-all.sh
+# Service management
+cd services/scripts
+./start-all.sh     # Start all services
+./stop-all.sh      # Stop all services
+./status-all.sh    # Check status
+./restart-all.sh   # Restart all services
 ```
 
-This systemd service setup launches three managed services:
-- **Backend server** (port 3000) - Main API server
-- **Frontend server** (port 8080) - Static file server for the client  
-- **Test server** (port 8081) - Automated API testing with JSON results
+## Architecture Overview
 
-## API Endpoints
+Knowable is a real-time graph explorer with a server-driven architecture:
 
-- `GET /` - API information and available endpoints
-- `GET /help` - API information and available endpoints
-- `GET /status` - Server status with uptime and instance support
-- `GET /api/server` - Action-command protocol endpoint (WebSocket primary, HTTP fallback)
+- **Backend**: Node.js Express server with WebSocket support (port 3000)
+- **Frontend**: Static HTML/JS client served from docs/ (port 8080)
+- **Test Server**: Automated testing with JSON results (port 8081)
+- **Communication**: WebSocket-first with HTTP fallback
+- **Session Management**: Instance-based sessions with persistent state
 
-## Action-Command Protocol
+### Key Components
 
-The server implements an action-command protocol where:
-- Client sends actions to the server via WebSocket messages
-- Server processes actions in the context of the session state
-- Server responds with an array of commands for the client to execute
+**Server (`server/`)**:
+- `server.js`: Main Express server with WebSocket handling and session middleware
+- `action-handlers.js`: Action-to-handler mapping with command factories
+- `sample-panels.js`: Sample data for panel management
 
-### Available Actions
-- `show-app` - Initialize application and load default panel list
-- `refresh-panel-list` - Request updated panel list
-- `select-panel` - Select a specific panel by ID
+**Frontend (`docs/`)**:
+- `index.html`: Main application interface
+- `app.js`: Client-side WebSocket logic with automatic reconnection
 
-### Command Types
-- `show-status` - Display connection status and instance information
-- `show-panel-list` - Display available panels
-- `show-panel` - Display selected panel details
-- `clear-panel` - Clear current panel
-- `warn` - Display warning message
+**Session Architecture**:
+- Sessions identified by instance headers (`req.headers['instance']`)
+- Server maintains `sessionStates` Map for each active session
+- WebSocket connections tracked in `wsConnections` Map
+- Action-command protocol enables stateful interactions
 
-## Frontend-Backend Integration
+### Action-Command Protocol
 
-- **WebSocket-First Communication**: Primary communication via WebSocket with automatic reconnection
-- **Environment Detection**: Automatically switches between local (`ws://localhost:3000`) and production (`wss://knowable-api.up.railway.app`) WebSocket URLs
-- **Action-Command Protocol**: Client sends actions via WebSocket messages
-- **Session Management**: Instance headers maintain separate server state for each client session
-- **Connection Status Monitoring**: Real-time WebSocket connection status with error handling
-- **Real-time Bidirectional Communication**: Server can push updates to client without request
+1. Client sends actions via WebSocket: `{action: "action-name", ...params}`
+2. Server routes actions through handlers in `action-handlers.js`
+3. Handlers return commands: `{command: "command-name", ...data}`
+4. Commands are sent back to client for execution
 
-## Deployment
+### Development Workflow
+
+The project uses three coordinated services:
+1. **Backend service**: API server with WebSocket support
+2. **Frontend service**: Static file server for client
+3. **Test service**: Automated API testing with results
+
+Use systemd services for managed development - they handle service coordination, logging, and automatic restarts.
+
+### Testing
+
+- Test server runs comprehensive action-command protocol tests
+- JSON results available at test server endpoints
+- Tests verify WebSocket and HTTP communication paths
+- Service status monitoring included in test suite
+
+### Deployment
 
 - **Backend**: Railway auto-deployment from GitHub
-- **Frontend**: GitHub Pages from `docs/` folder at https://davidofmorris.github.io/knowable/
-- Environment variables: `NODE_ENV`, `PORT`
-- Node.js version: >=18.0.0
-
-## Key Files for Architecture Understanding
-
-- `server/action-handlers.js:5-50` - Sample panel data and action handlers
-- `server/action-handlers.js:75-150` - Action handler implementations
-- `server/server.js:15-27` - Session management middleware
-- `server/server.js:35-55` - Action-command protocol routing
-- `docs/app.js` - Client-side API integration and testing interface
-- `docs/index.html` - Main UI with real-time backend integration
+- **Frontend**: GitHub Pages from docs/ folder
+- Production URLs configured in `docs/app.js`

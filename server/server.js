@@ -29,6 +29,31 @@ app.use((req, res, next) => {
   next();
 });
 
+// Parameter normalization middleware - merge query params and body into req.data
+app.use((req, res, next) => {
+  const data = {};
+  
+  // Start with POST body data (if any)
+  if (req.body && typeof req.body === 'object') {
+    Object.assign(data, req.body);
+  }
+  
+  // Add URL query parameters, handling collisions by prefixing with 'param-'
+  if (req.query && typeof req.query === 'object') {
+    for (const [key, value] of Object.entries(req.query)) {
+      if (data.hasOwnProperty(key)) {
+        // Collision: prefix URL param with 'param-'
+        data[`param-${key}`] = value;
+      } else {
+        data[key] = value;
+      }
+    }
+  }
+  
+  req.data = data;
+  next();
+});
+
 //
 // generic command factories
 //
@@ -36,6 +61,13 @@ function warn(message) {
   return {
     command: "warn",
     message: message,
+  }
+}
+
+function debug(data) {
+  return {
+    command: "debug",
+    data: data,
   }
 }
 
@@ -88,8 +120,9 @@ const handlers = require('./action-handlers').handlers;
 //
 // http server interface
 //
-app.get('/api/server', (req, res) => {
-  const action = req.query.action;
+// Helper function to handle server requests (GET/POST agnostic)
+function handleServerRequest(req, res) {
+  const action = req.data.action;
   if (!action) {
     res.json( [warn('No action parameter.')] );
     return;
@@ -101,8 +134,16 @@ app.get('/api/server', (req, res) => {
     return;
   }
 
-  res.json(handler(req));
-});
+  const commands = handler(req);
+  // Add debug information about the normalized data
+  if ('debug' in req.data) {
+      commands.push(debug(req.data));
+  }
+  res.json(commands);
+}
+
+app.get('/api/server', handleServerRequest);
+app.post('/api/server', handleServerRequest);
 
 // Fallback handler for unmatched routes
 app.use((req, res, next) => {

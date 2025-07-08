@@ -119,6 +119,78 @@ async function testSelectPanel(testData) {
     testCommandArray(data);  
 }
 
+async function testMethodAgnosticAPI(testData) {
+    testData.name = 'Method-Agnostic API Test';
+    
+    // Helper function to remove debug command from response
+    function removeDebugCommand(data) {
+        return data.filter(cmd => cmd.command !== 'debug');
+    }
+    
+    // Test 1: GET request with id=knowledge-graph
+    const getURL = `${apiUrl}server?action=select-panel&id=knowledge-graph`;
+    const getResponse = await fetch(getURL);
+    const getData = await getResponse.json();
+    testResponseStatus(getResponse, 200);
+    testCommandArray(getData);
+    const getDataFiltered = removeDebugCommand(getData);
+    
+    // Test 2: POST request with id=knowledge-graph in body
+    const postURL = `${apiUrl}server`;
+    const postResponse = await fetch(postURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Instance': 'test'
+        },
+        body: JSON.stringify({
+            action: 'select-panel',
+            id: 'knowledge-graph'
+        })
+    });
+    const postData = await postResponse.json();
+    testResponseStatus(postResponse, 200);
+    testCommandArray(postData);
+    const postDataFiltered = removeDebugCommand(postData);
+    
+    // Test 3: POST request with id=knowledge-graph as URL parameter
+    const postWithParamURL = `${apiUrl}server?id=knowledge-graph`;
+    const postWithParamResponse = await fetch(postWithParamURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Instance': 'test'
+        },
+        body: JSON.stringify({
+            action: 'select-panel'
+        })
+    });
+    const postWithParamData = await postWithParamResponse.json();
+    testResponseStatus(postWithParamResponse, 200);
+    testCommandArray(postWithParamData);
+    const postWithParamDataFiltered = removeDebugCommand(postWithParamData);
+    
+    // Verify all three responses are identical (excluding debug command)
+    const getStr = JSON.stringify(getDataFiltered);
+    const postStr = JSON.stringify(postDataFiltered);
+    const postWithParamStr = JSON.stringify(postWithParamDataFiltered);
+    
+    if (getStr !== postStr) {
+        throw new Error('GET and POST responses differ');
+    }
+    
+    if (getStr !== postWithParamStr) {
+        throw new Error('GET and POST-with-param responses differ');
+    }
+    
+    if (postStr !== postWithParamStr) {
+        throw new Error('POST and POST-with-param responses differ');
+    }
+    
+    testData.URL = `${getURL} | ${postURL} | ${postWithParamURL}`;
+    testData.details = `All three requests should return identical responses for knowledge-graph panel`;
+}
+
 function testResponseStatus(res, expect) {
     if (res.status !== expect) {
         throw new Error(`Expected status ${expect}, got ${res.status}`);
@@ -169,6 +241,7 @@ async function runAllTests() {
     await runTest(testShowApp);
     await runTest(testRefreshPanelList);
     await runTest(testSelectPanel);
+    await runTest(testMethodAgnosticAPI);
     
     console.log('\n📊 Test completed!');
     console.log(`Total: ${testResults.length} tests, ${testResults.filter(t => t.status === 'PASS').length} passed, ${testResults.filter(t => t.status === 'FAIL').length} failed`);

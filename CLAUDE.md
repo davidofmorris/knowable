@@ -32,10 +32,16 @@ Knowable is a knowledge graph explorer built with a split-stack architecture:
 
 ### Recommended Development Setup
 ```bash
-./start-dev.sh       # Start all development servers (backend, frontend, test)
+# Install services (one-time setup)
+cd services
+./install-services.sh
+
+# Start all development servers
+cd scripts
+./start-all.sh
 ```
 
-This development script launches three servers simultaneously:
+This systemd service setup launches three managed services:
 - **Backend server** (port 3000) - Main API server
 - **Frontend server** (port 8080) - Static file server for the client  
 - **Test server** (port 8081) - Automated API testing with JSON results

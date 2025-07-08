@@ -1,6 +1,6 @@
-# Knowable - Knowledge Graph Explorer
+# Knowable - Graph Explorer
 
-A fractal, hierarchical knowledge graph explorer built with Node.js and vanilla JavaScript, designed around the principles of structured identity and perspective mapping.
+A visual graph explorer.
 
 ## Architecture
 

@@ -36,7 +36,7 @@
             margin: 10px 0;
             border-left: 4px solid #2196f3;
         }
-        .perspective-map {
+        .panel-map {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
@@ -45,7 +45,7 @@
             background: #f0f0f0;
             border-radius: 8px;
         }
-        .perspective-cell {
+        .panel-cell {
             background: white;
             padding: 10px;
             border-radius: 5px;
@@ -86,28 +86,28 @@
         </div>
 
         <div class="status-section">
-            <div id="perspective-container">
-                <div id="perspective-header">
-                    <h3>Current Perspective: none</h3>
-                    <p><i>Select a perspective to begin...</i></p>
+            <div id="panel-container">
+                <div id="panel-header">
+                    <h3>Current Panel: none</h3>
+                    <p><i>Select a panel to begin...</i></p>
                 </div>
-                <div id="perspective-map" class="perspective-map" style="display:none;">
-                    <div class="perspective-cell">assumptions</div>
-                    <div class="perspective-cell">purpose</div>
-                    <div class="perspective-cell">vision</div>
-                    <div class="perspective-cell">capabilities</div>
-                    <div class="perspective-cell">activity</div>
-                    <div class="perspective-cell">objective</div>
-                    <div class="perspective-cell">architecture</div>
-                    <div class="perspective-cell">platform</div>
-                    <div class="perspective-cell">context</div>
+                <div id="panel-map" class="panel-map" style="display:none;">
+                    <div class="panel-cell">assumptions</div>
+                    <div class="panel-cell">purpose</div>
+                    <div class="panel-cell">vision</div>
+                    <div class="panel-cell">capabilities</div>
+                    <div class="panel-cell">activity</div>
+                    <div class="panel-cell">objective</div>
+                    <div class="panel-cell">architecture</div>
+                    <div class="panel-cell">platform</div>
+                    <div class="panel-cell">context</div>
                 </div>
             </div>
         </div>
 
         <div class="status-section">
-            <h3>Available Perspectives</h3>
-            <div id="perspectives-list" class="loading">Loading perspectives...</div>
+            <h3>Available Panels</h3>
+            <div id="panels-list" class="loading">Loading panels...</div>
         </div>
     </div>
 

@@ -20,7 +20,7 @@ const reconnectDelay = 2000; // 2 seconds
 // DOM elements
 const connectionStatus = document.getElementById('connection-status');
 const apiResponse = document.getElementById('api-response');
-const perspectivesList = document.getElementById('perspectives-list');
+const panelsList = document.getElementById('panels-list');
 
 function initInstance() {
     // Try to get existing instance from localStorage
@@ -48,9 +48,9 @@ async function showApp() {
     }
 }
 
-// Load specific perspective
-async function selectPerspective(id) {
-    sendWebSocketMessage('select-perspective', { id });
+// Load specific panel
+async function selectPanel(id) {
+    sendWebSocketMessage('select-panel', { id });
 }
 
 //
@@ -59,9 +59,9 @@ async function selectPerspective(id) {
 const commandHandlers = {
     "warn": doWarn,
     "show-status": doShowStatus,
-    "clear-perspective": doClearPerspective,
-    "show-perspective-list": doShowPerspectiveList,
-    "show-perspective": doShowPerspective
+    "clear-panel": doClearPanel,
+    "show-panel-list": doShowPanelList,
+    "show-panel": doShowPanel
 }
 
 function doWarn(commandObj) {
@@ -73,56 +73,56 @@ function doShowStatus(commandObj) {
     apiResponse.textContent = JSON.stringify(commandObj, null, 2);
 }
 
-function doClearPerspective(commandObj) {
-    const headerElement = document.getElementById('perspective-header');
-    const mapElement = document.getElementById('perspective-map');
+function doClearPanel(commandObj) {
+    const headerElement = document.getElementById('panel-header');
+    const mapElement = document.getElementById('panel-map');
     headerElement.innerHTML = `
-        <h3>Current Perspective: none</h3>
-        <p><i>Select a perspective to begin...</i></p>
+        <h3>Current Panel: none</h3>
+        <p><i>Select a panel to begin...</i></p>
     `;
     mapElement.style.display='none';
 }
 
-function doShowPerspectiveList(commandObj) {
+function doShowPanelList(commandObj) {
     let html = '<ul>';
-    commandObj.perspectives.forEach(perspective => {
+    commandObj.panels.forEach(panel => {
         html += `
             <li>
-                <strong>${perspective.name}</strong> - ${perspective.description}
-                <button onclick="selectPerspective('${perspective.id}')" style="margin-left: 10px;">Load</button>
+                <strong>${panel.name}</strong> - ${panel.description}
+                <button onclick="selectPanel('${panel.id}')" style="margin-left: 10px;">Load</button>
             </li>
         `;
     });
     html += '</ul>';
     
-    perspectivesList.innerHTML = html;
+    panelsList.innerHTML = html;
 }
 
-function doShowPerspective(commandObj) {
-    const perspective = commandObj.perspective;
-    const headerElement = document.getElementById('perspective-header');
+function doShowPanel(commandObj) {
+    const panel = commandObj.panel;
+    const headerElement = document.getElementById('panel-header');
 
     // Add title
     headerElement.innerHTML = `
-       <h3>Current Perspective: ${perspective.name}</h3>
-        <p>${perspective.description}</p>
+       <h3>Current Panel: ${panel.name}</h3>
+        <p>${panel.description}</p>
     `;
 
-    // Update the perspective map
-    const mapElement = document.getElementById('perspective-map');
-    const cells = mapElement.querySelectorAll('.perspective-cell');
+    // Update the panel map
+    const mapElement = document.getElementById('panel-map');
+    const cells = mapElement.querySelectorAll('.panel-cell');
     
-    // Map the perspective data to the 3x3 grid
+    // Map the panel data to the 3x3 grid
     const mapData = [
-        perspective.map.aspirational.back,
-        perspective.map.aspirational.center,
-        perspective.map.aspirational.front,
-        perspective.map.operational.back,
-        perspective.map.operational.center,
-        perspective.map.operational.front,
-        perspective.map.foundational.back,
-        perspective.map.foundational.center,
-        perspective.map.foundational.front
+        panel.map.aspirational.back,
+        panel.map.aspirational.center,
+        panel.map.aspirational.front,
+        panel.map.operational.back,
+        panel.map.operational.center,
+        panel.map.operational.front,
+        panel.map.foundational.back,
+        panel.map.foundational.center,
+        panel.map.foundational.front
     ];
     
     cells.forEach((cell, index) => {

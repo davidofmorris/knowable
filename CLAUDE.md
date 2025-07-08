@@ -14,7 +14,7 @@ Knowable is a knowledge graph explorer built with a split-stack architecture:
 
 ### Backend Structure (`server/`)
 - `server.js`: Main Express server with CORS, JSON middleware, session management, and action-command protocol routing
-- `action-handlers.js`: Action-command protocol implementation with perspective data and business logic
+- `action-handlers.js`: Action-command protocol implementation with panel data and business logic
 - Session state management using instance headers for stateful client-server interactions
 
 ### Frontend Structure (`docs/`)
@@ -61,15 +61,15 @@ The server implements an action-command protocol where:
 - Server responds with an array of commands for the client to execute
 
 ### Available Actions
-- `show-app` - Initialize application and load default perspective list
-- `refresh-perspective-list` - Request updated perspective list
-- `select-perspective` - Select a specific perspective by ID
+- `show-app` - Initialize application and load default panel list
+- `refresh-panel-list` - Request updated panel list
+- `select-panel` - Select a specific panel by ID
 
 ### Command Types
 - `show-status` - Display connection status and instance information
-- `show-perspective-list` - Display available perspectives
-- `show-perspective` - Display selected perspective details
-- `clear-perspective` - Clear current perspective
+- `show-panel-list` - Display available panels
+- `show-panel` - Display selected panel details
+- `clear-panel` - Clear current panel
 - `warn` - Display warning message
 
 ## Frontend-Backend Integration
@@ -90,7 +90,7 @@ The server implements an action-command protocol where:
 
 ## Key Files for Architecture Understanding
 
-- `server/action-handlers.js:5-50` - Sample perspective data and action handlers
+- `server/action-handlers.js:5-50` - Sample panel data and action handlers
 - `server/action-handlers.js:75-150` - Action handler implementations
 - `server/server.js:15-27` - Session management middleware
 - `server/server.js:35-55` - Action-command protocol routing

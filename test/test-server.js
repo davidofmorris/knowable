@@ -99,9 +99,9 @@ async function testShowApp(testData) {
     }
 }
 
-async function testRefreshPerspectiveList(testData) {
-    testData.name = 'Action: refresh-perspective-list';
-    const URL = `${apiUrl}server?action=refresh-perspective-list`;
+async function testRefreshPanelList(testData) {
+    testData.name = 'Action: refresh-panel-list';
+    const URL = `${apiUrl}server?action=refresh-panel-list`;
     testData.URL = URL;
     const response = await fetch(URL);
     const data = await response.json(); 
@@ -109,9 +109,9 @@ async function testRefreshPerspectiveList(testData) {
     testCommandArray(data);  
 }
 
-async function testSelectPerspective(testData) {
-    testData.name = 'Action: select-perspective';
-    const URL = `${apiUrl}server?action=select-perspective`;
+async function testSelectPanel(testData) {
+    testData.name = 'Action: select-panel';
+    const URL = `${apiUrl}server?action=select-panel`;
     testData.URL = URL;
     const response = await fetch(URL);
     const data = await response.json();
@@ -167,8 +167,8 @@ async function runAllTests() {
     await runTest(testErrorHandling);
 
     await runTest(testShowApp);
-    await runTest(testRefreshPerspectiveList);
-    await runTest(testSelectPerspective);
+    await runTest(testRefreshPanelList);
+    await runTest(testSelectPanel);
     
     console.log('\n📊 Test completed!');
     console.log(`Total: ${testResults.length} tests, ${testResults.filter(t => t.status === 'PASS').length} passed, ${testResults.filter(t => t.status === 'FAIL').length} failed`);

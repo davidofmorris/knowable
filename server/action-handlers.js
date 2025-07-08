@@ -1,5 +1,5 @@
-// Sample perspective data
-const samplePerspectives = [
+// Sample panel data
+const samplePanels = [
   {
     id: 'project-explorer',
     name: 'Project Explorer',
@@ -49,8 +49,8 @@ const samplePerspectives = [
 // action -> handler map
 const handlers = {
   "show-app": onShowApp,
-  "refresh-perspective-list": onRefreshPerspectiveList,
-  "select-perspective": onSelectPerspective
+  "refresh-panel-list": onRefreshPanelList,
+  "select-panel": onSelectPanel
 };
 
 //
@@ -73,24 +73,24 @@ function showStatusCommand(instance) {
   }
 }
 
-function showPerspectiveListCommand(list) {
+function showPanelListCommand(list) {
   return {
-    command: "show-perspective-list",
-    perspectives: list,
+    command: "show-panel-list",
+    panels: list,
     count: list.length
   }  
 }
 
-function clearPerspectiveCommand() {
+function clearPanelCommand() {
   return {
-    command: "clear-perspective"
+    command: "clear-panel"
   }
 }
 
-function showPerspectiveCommand(perspective) {
+function showPanelCommand(panel) {
   return {
-    command: "show-perspective",
-    perspective: perspective
+    command: "show-panel",
+    panel: panel
   }
 }
 
@@ -103,52 +103,52 @@ function onShowApp(req) {
   const state = req.sessionState;
 
   commands.push(showStatusCommand(state.instance));
-  commands.push(showPerspectiveListCommand(samplePerspectives));
+  commands.push(showPanelListCommand(samplePanels));
 
-  const perspectiveId = state.activePerspectiveId;
-  var perspective; 
-  if (perspectiveId) {
-    perspective = findPerspective(perspectiveId);
+  const panelId = state.activePanelId;
+  var panel; 
+  if (panelId) {
+    panel = findPanel(panelId);
   }
 
-  if (perspective) {
-    commands.push(showPerspectiveCommand(perspective));
+  if (panel) {
+    commands.push(showPanelCommand(panel));
   } else {
-    commands.push(clearPerspectiveCommand());
+    commands.push(clearPanelCommand());
   }
 
   return commands;
 }
 
-function onRefreshPerspectiveList(_req) {
-  // on: refresh-perspective-list
+function onRefreshPanelList(_req) {
+  // on: refresh-panel-list
   const commands = [];
-  commands.push(showPerspectiveListCommand(samplePerspectives));
+  commands.push(showPanelListCommand(samplePanels));
   return commands;
 }
 
-function onSelectPerspective(req) {
-  // on: select-perspective (id)
+function onSelectPanel(req) {
+  // on: select-panel (id)
   const commands = [];
   const state = req.sessionState;
   const id = req.query.id || 0; // return top item if none is specified
-  const perspective = findPerspective(id);
+  const panel = findPanel(id);
 
-  if (!perspective) {
-    state.activePerspectiveId = -1;
-    commands.push(warn(`Perspective ${id} not found.`));
-    commands.push(clearPerspectiveCommand());
-    commands.push(showPerspectiveListCommand(samplePerspectives));
+  if (!panel) {
+    state.activePanelId = -1;
+    commands.push(warn(`Panel ${id} not found.`));
+    commands.push(clearPanelCommand());
+    commands.push(showPanelListCommand(samplePanels));
   } else {
-    state.activePerspectiveId = id;
-    commands.push(showPerspectiveCommand(perspective));
+    state.activePanelId = id;
+    commands.push(showPanelCommand(panel));
   }
 
   return commands;
 }
 
-function findPerspective(id) {
-  return samplePerspectives.find(p => p.id === id);
+function findPanel(id) {
+  return samplePanels.find(p => p.id === id);
 }
 
 module.exports = {

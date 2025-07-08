@@ -50,7 +50,7 @@ async function showApp() {
 
 // Load specific panel
 async function selectPanel(id) {
-    sendWebSocketMessage('select-panel', { id });
+    sendWebSocketMessage('select-panel', { id:id });
 }
 
 //
@@ -194,6 +194,7 @@ function sendWebSocketMessage(action, data = {}) {
     try {
         if (ws && ws.readyState === WebSocket.OPEN) {
             const message = { action, ...data };
+            console.log('sendWebSocketMessage' + JSON.stringify(message));
             ws.send(JSON.stringify(message));
             return true;
         }

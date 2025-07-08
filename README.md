@@ -13,7 +13,7 @@ A visual graph explorer.
 
 ```
 knowable/
-├── docs/                  # GitHub Pages frontend
+├── client/                  # GitHub Pages frontend
 │   ├── index.html         # Main application interface
 │   └── app.js             # Client-side logic
 ├── server/                # Node.js backend
@@ -57,7 +57,7 @@ cd scripts
 
 2. **Frontend**:
    ```bash
-   cd docs
+   cd client
    serve -p 8080
    ```
 
@@ -71,7 +71,7 @@ cd scripts
 ### Deployment
 
 - **Backend**: Connect your GitHub repo to Railway for auto-deployment
-- **Frontend**: Enable GitHub Pages on the `docs/` folder
+- **Frontend**: Enable GitHub Pages on the `client/` folder
 
 ## Service Management
 

@@ -14,7 +14,7 @@ npm start       # Production
 
 ### Frontend (Static Files)
 ```bash
-cd docs
+cd client
 serve -p 8080   # Serves static files
 ```
 
@@ -45,7 +45,7 @@ cd services/scripts
 Knowable is a real-time graph explorer with a server-driven architecture:
 
 - **Backend**: Node.js Express server with WebSocket support (port 3000)
-- **Frontend**: Static HTML/JS client served from docs/ (port 8080)
+- **Frontend**: Static HTML/JS client served from client/ (port 8080)
 - **Test Server**: Automated testing with JSON results (port 8081)
 - **Communication**: WebSocket-first with HTTP fallback
 - **Session Management**: Instance-based sessions with persistent state
@@ -57,7 +57,7 @@ Knowable is a real-time graph explorer with a server-driven architecture:
 - `action-handlers.js`: Action-to-handler mapping with command factories
 - `sample-panels.js`: Sample data for panel management
 
-**Frontend (`docs/`)**:
+**Frontend (`client/`)**:
 - `index.html`: Main application interface
 - `app.js`: Client-side WebSocket logic with automatic reconnection
 
@@ -93,5 +93,5 @@ Use systemd services for managed development - they handle service coordination,
 ### Deployment
 
 - **Backend**: Railway auto-deployment from GitHub
-- **Frontend**: GitHub Pages from docs/ folder
-- Production URLs configured in `docs/app.js`
+- **Frontend**: GitHub Pages from client/ folder
+- Production URLs configured in `client/app.js`

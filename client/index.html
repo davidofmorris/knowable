@@ -23,7 +23,7 @@
             text-align: center;
             margin-bottom: 30px;
         }
-        .status-section {
+        .top-level-panel {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
@@ -64,18 +64,8 @@
 <body>
     <div class="container">
         <h2 class="app-title">Knowable - graph explorer</h2>
-        
-        <div class="status-section">
-            <h3>Backend Connection Status</h3>
-            <div id="connection-status" class="loading">Testing connection...</div>
-            
-            <div class="api-test">
-                <h4>API Response:</h4>
-                <pre id="api-response">Loading...</pre>
-            </div>
-        </div>
 
-        <div class="status-section">
+        <div class="top-level-panel">
             <div id="panel-container">
                 <div id="panel-header">
                     <h3>Current Panel: none</h3>
@@ -87,9 +77,19 @@
             </div>
         </div>
 
-        <div class="status-section">
+        <div class="top-level-panel">
             <h3>Available Panels</h3>
             <div id="panels-list" class="loading">Loading panels...</div>
+        </div>
+        
+        <div class="top-level-panel">
+            <h3>Backend Connection Status</h3>
+            <div id="connection-status" class="loading">Testing connection...</div>
+            
+            <div class="api-test">
+                <h4>API Response:</h4>
+                <pre id="api-response">Loading...</pre>
+            </div>
         </div>
     </div>
 

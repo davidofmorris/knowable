@@ -38,15 +38,10 @@ app.use((req, res, next) => {
     Object.assign(data, req.body);
   }
   
-  // Add URL query parameters, handling collisions by prefixing with 'param-'
+  // Add URL query parameters
   if (req.query && typeof req.query === 'object') {
     for (const [key, value] of Object.entries(req.query)) {
-      if (data.hasOwnProperty(key)) {
-        // Collision: prefix URL param with 'param-'
-        data[`param-${key}`] = value;
-      } else {
-        data[key] = value;
-      }
+      data[key] = value;
     }
   }
   
@@ -173,7 +168,7 @@ wss.on('connection', (ws, req) => {
   ws.on('message', (message) => {
     try {
       const data = JSON.parse(message);
-      const { action, ...actionData } = data;
+      const action = data.action;
       
       if (!action) {
         ws.send(JSON.stringify( [warn('No action parameter.')] ));
@@ -182,7 +177,8 @@ wss.on('connection', (ws, req) => {
       
       // Create mock req/res objects to reuse existing handlers
       const mockReq = {
-        query: { action, ...actionData },
+        // query: { action, ...actionData },
+        data: data,
         sessionState: sessionStates.get(instance)
       };
       

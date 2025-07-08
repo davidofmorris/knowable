@@ -4,45 +4,13 @@ const samplePanels = [
     id: 'project-explorer',
     name: 'Project Explorer',
     description: 'Visualize and explore project structure',
-    map: {
-      aspirational: {
-        back: 'assumptions',
-        center: 'purpose', 
-        front: 'vision'
-      },
-      operational: {
-        back: 'capabilities',
-        center: 'activity',
-        front: 'objective'
-      },
-      foundational: {
-        back: 'architecture',
-        center: 'platform',
-        front: 'context'
-      }
-    }
+    content: 'This panel helps you understand your project structure by examining the relationships between different components. It provides insights into the architecture, capabilities, and objectives that drive your project forward.'
   },
   {
     id: 'knowledge-graph',
     name: 'Knowledge Graph',
     description: 'Navigate semantic relationships',
-    map: {
-      aspirational: {
-        back: 'understanding',
-        center: 'connection',
-        front: 'insight'
-      },
-      operational: {
-        back: 'exploration',
-        center: 'discovery',
-        front: 'synthesis'
-      },
-      foundational: {
-        back: 'information',
-        center: 'structure',
-        front: 'meaning'
-      }
-    }
+    content: 'Explore the connections between different concepts and ideas in your knowledge base. This panel allows you to discover patterns, synthesize information, and gain deeper insights through the exploration of semantic relationships.'
   }
 ];
 
@@ -131,7 +99,7 @@ function onSelectPanel(req) {
   // on: select-panel (id)
   const commands = [];
   const state = req.sessionState;
-  const id = req.query.id || 0; // return top item if none is specified
+  const id = req.query.id || samplePanels[0].id; // return first panel if none is specified
   const panel = findPanel(id);
 
   if (!panel) {

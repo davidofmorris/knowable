@@ -36,22 +36,12 @@
             margin: 10px 0;
             border-left: 4px solid #2196f3;
         }
-        .panel-map {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+        .panel-content {
             margin: 20px 0;
             padding: 20px;
             background: #f0f0f0;
             border-radius: 8px;
-        }
-        .panel-cell {
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 14px;
-            border: 1px solid #ddd;
+            line-height: 1.6;
         }
         .loading {
             color: #666;
@@ -91,16 +81,8 @@
                     <h3>Current Panel: none</h3>
                     <p><i>Select a panel to begin...</i></p>
                 </div>
-                <div id="panel-map" class="panel-map" style="display:none;">
-                    <div class="panel-cell">assumptions</div>
-                    <div class="panel-cell">purpose</div>
-                    <div class="panel-cell">vision</div>
-                    <div class="panel-cell">capabilities</div>
-                    <div class="panel-cell">activity</div>
-                    <div class="panel-cell">objective</div>
-                    <div class="panel-cell">architecture</div>
-                    <div class="panel-cell">platform</div>
-                    <div class="panel-cell">context</div>
+                <div id="panel-content" class="panel-content" style="display:none;">
+                    <p>Panel content will appear here...</p>
                 </div>
             </div>
         </div>

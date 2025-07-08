@@ -75,12 +75,12 @@ function doShowStatus(commandObj) {
 
 function doClearPanel(commandObj) {
     const headerElement = document.getElementById('panel-header');
-    const mapElement = document.getElementById('panel-map');
+    const contentElement = document.getElementById('panel-content');
     headerElement.innerHTML = `
         <h3>Current Panel: none</h3>
         <p><i>Select a panel to begin...</i></p>
     `;
-    mapElement.style.display='none';
+    contentElement.style.display='none';
 }
 
 function doShowPanelList(commandObj) {
@@ -101,6 +101,7 @@ function doShowPanelList(commandObj) {
 function doShowPanel(commandObj) {
     const panel = commandObj.panel;
     const headerElement = document.getElementById('panel-header');
+    const contentElement = document.getElementById('panel-content');
 
     // Add title
     headerElement.innerHTML = `
@@ -108,29 +109,9 @@ function doShowPanel(commandObj) {
         <p>${panel.description}</p>
     `;
 
-    // Update the panel map
-    const mapElement = document.getElementById('panel-map');
-    const cells = mapElement.querySelectorAll('.panel-cell');
-    
-    // Map the panel data to the 3x3 grid
-    const mapData = [
-        panel.map.aspirational.back,
-        panel.map.aspirational.center,
-        panel.map.aspirational.front,
-        panel.map.operational.back,
-        panel.map.operational.center,
-        panel.map.operational.front,
-        panel.map.foundational.back,
-        panel.map.foundational.center,
-        panel.map.foundational.front
-    ];
-    
-    cells.forEach((cell, index) => {
-        cell.textContent = mapData[index];
-        //cell.style.backgroundColor = '#e3f2fd';
-    });
-
-    mapElement.style.display='grid';
+    // Update the panel content
+    contentElement.innerHTML = `<p>${panel.content}</p>`;
+    contentElement.style.display='block';
 }
 
 //

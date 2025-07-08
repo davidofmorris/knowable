@@ -10,8 +10,6 @@ Knowable is a knowledge graph explorer built with a split-stack architecture:
 - **Communication**: WebSocket-first with real-time bidirectional messaging
 - **Philosophy**: Server-driven architecture with client as "display device"
 
-The application is based on a normative ontology framework exploring structured identity (center, mind, boundary) and perspective mapping across aspirational, operational, and foundational levels.
-
 ## Architecture
 
 ### Backend Structure (`server/`)
@@ -42,29 +40,6 @@ This development script launches three servers simultaneously:
 - **Frontend server** (port 8080) - Static file server for the client  
 - **Test server** (port 8081) - Automated API testing with JSON results
 
-### Manual Development Setup
-
-#### Backend Development
-```bash
-cd server
-npm install          # Install dependencies
-npm run dev          # Start with nodemon (development)
-npm start           # Start production server
-```
-
-#### Frontend Development
-```bash
-cd docs
-serve -p 8080        # Serve static files locally
-```
-
-#### Test Server
-```bash
-cd test
-npm install          # Install dependencies
-npm start           # Start test server
-```
-
 ## API Endpoints
 
 - `GET /` - API information and available endpoints
@@ -75,8 +50,7 @@ npm start           # Start test server
 ## Action-Command Protocol
 
 The server implements an action-command protocol where:
-- Client sends actions primarily via WebSocket messages to the server
-- HTTP fallback available via query parameters to `/api/server?action=<action-name>`
+- Client sends actions to the server via WebSocket messages
 - Server processes actions in the context of the session state
 - Server responds with an array of commands for the client to execute
 
@@ -96,7 +70,7 @@ The server implements an action-command protocol where:
 
 - **WebSocket-First Communication**: Primary communication via WebSocket with automatic reconnection
 - **Environment Detection**: Automatically switches between local (`ws://localhost:3000`) and production (`wss://knowable-api.up.railway.app`) WebSocket URLs
-- **Action-Command Protocol**: Client sends actions primarily via WebSocket messages, HTTP fallback available
+- **Action-Command Protocol**: Client sends actions via WebSocket messages
 - **Session Management**: Instance headers maintain separate server state for each client session
 - **Connection Status Monitoring**: Real-time WebSocket connection status with error handling
 - **Real-time Bidirectional Communication**: Server can push updates to client without request

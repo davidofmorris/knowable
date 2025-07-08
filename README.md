@@ -23,13 +23,11 @@ knowable/
 ├── test/                  # Test infrastructure
 │   ├── test-server.js
 │   └── package.json
-├── notes/                 # Project documentation
-│   ├── Inception.md
-│   ├── Ontology.md
-│   ├── Phase1.md
-│   ├── Phase2.md
-│   └── Phase3.md
-├── start-dev.sh           # Development script
+├── services/              # Systemd service management
+│   ├── systemd/           # Service definition files
+│   ├── scripts/           # Management scripts
+│   ├── install-services.sh
+│   └── README.md
 ├── LICENSE
 └── README.md
 ```
@@ -38,9 +36,15 @@ knowable/
 
 ### Local Development
 
-**Recommended**: Use the development script to start all servers:
+**Recommended**: Use systemd user services for managed service operation:
 ```bash
-./start-dev.sh
+# Install services (one-time setup)
+cd services
+./install-services.sh
+
+# Start all services
+cd scripts
+./start-all.sh
 ```
 
 **Manual setup**:
@@ -69,18 +73,27 @@ knowable/
 - **Backend**: Connect your GitHub repo to Railway for auto-deployment
 - **Frontend**: Enable GitHub Pages on the `docs/` folder
 
-## Development Infrastructure
+## Service Management
 
-The project includes a comprehensive development setup with multi-server architecture:
+The project includes systemd user services for robust development infrastructure:
 
-### Development Script
+### Service Management
 ```bash
-./start-dev.sh
+# Install services (one-time)
+cd services && ./install-services.sh
+
+# Manage all services
+cd services/scripts
+./start-all.sh    # Start all services
+./stop-all.sh     # Stop all services
+./status-all.sh   # Check service status
+./restart-all.sh  # Restart all services
 ```
-This script launches three servers simultaneously:
-- **Backend server** (port 3000) - Main API server
-- **Frontend server** (port 8080) - Static file server for the client
-- **Test server** (port 8081) - Automated API testing with JSON results
+
+### Services
+- **Backend service** (port 3000) - Main API server with WebSocket support
+- **Frontend service** (port 8080) - Static file server for the client  
+- **Test service** (port 8081) - Automated API testing with JSON results
 
 ### Session Management
 The backend implements instance-based session management:
@@ -110,22 +123,3 @@ The backend implements instance-based session management:
 - **Real-time API Integration**: Frontend dynamically communicates with backend via WebSocket
 - **Comprehensive Testing**: Automated test suite with JSON results
 - **Railway Ready**: Configured for one-click deployment
-
-## Philosophy
-
-Based on the normative ontology framework, this application explores:
-- Structured identity (center, mind, boundary)
-- Perspective mapping across aspirational, operational, and foundational levels
-- Information substrate theory applied to knowledge representation
-
-For comprehensive documentation of the philosophical foundations and project evolution, see the `notes/` directory:
-- `A Normative Ontology.md` - Core philosophical framework
-- `Phase2.md` - Project evolution and architectural design goals
-
-## Next Steps
-
-1. **Enhanced Action-Command Protocol**: Expand command types and client-side command processing
-2. **Persistence Layer**: Add database integration for session state persistence
-3. **Advanced Knowledge Graph Features**: Implement graph traversal and visualization
-4. **User Authentication**: Add secure user sessions and data isolation
-5. **WebSocket Enhancements**: Add connection recovery and message queuing

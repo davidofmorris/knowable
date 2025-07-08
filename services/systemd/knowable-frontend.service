@@ -1,0 +1,17 @@
+[Unit]
+Description=Knowable Frontend Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/dmorris/projects/knowable/docs
+ExecStart=/home/dmorris/.nvm/versions/node/v22.17.0/bin/npx serve -p 8080
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=development
+Environment=PATH=/home/dmorris/.nvm/versions/node/v22.17.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

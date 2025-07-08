@@ -1,0 +1,19 @@
+[Unit]
+Description=Knowable Test Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/dmorris/projects/knowable/test
+ExecStart=/home/dmorris/.nvm/versions/node/v22.17.0/bin/npm run dev
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=development
+Environment=PORT=8081
+Environment=LOCAL=true
+Environment=PATH=/home/dmorris/.nvm/versions/node/v22.17.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

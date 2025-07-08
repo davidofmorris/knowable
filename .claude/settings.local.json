@@ -20,7 +20,15 @@
       "Bash(kill:*)",
       "Bash(rg:*)",
       "Bash(grep:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(./install-services.sh:*)",
+      "Bash(./start-all.sh)",
+      "Bash(./status-all.sh)",
+      "Bash(systemctl:*)",
+      "Bash(./restart-all.sh:*)",
+      "Bash(journalctl:*)",
+      "Bash(ss:*)",
+      "Bash(./stop-all.sh:*)"
     ],
     "deny": []
   }

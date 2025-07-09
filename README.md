@@ -19,6 +19,7 @@ knowable/
 ├── server/                # Node.js backend
 │   ├── server.js          # Express server
 │   ├── action-handlers.js # Maps actions to handlers
+│   ├── sample-graph.js    # Sample data
 │   ├── package.json
 ├── test/                  # Test infrastructure
 │   ├── test-server.js

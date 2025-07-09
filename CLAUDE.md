@@ -55,7 +55,7 @@ Knowable is a real-time graph explorer with a server-driven architecture:
 **Server (`server/`)**:
 - `server.js`: Main Express server with WebSocket handling and session middleware
 - `action-handlers.js`: Action-to-handler mapping with command factories
-- `sample-panels.js`: Sample data for panel management
+- `sample-graph.js`: Sample data
 
 **Frontend (`client/`)**:
 - `index.html`: Main application interface

@@ -77,8 +77,7 @@ function doClearPanel(commandObj) {
     const headerElement = document.getElementById('panel-header');
     const contentElement = document.getElementById('panel-content');
     headerElement.innerHTML = `
-        <h3>Current Panel: none</h3>
-        <p><i>Select a panel to begin...</i></p>
+        <h3><i>Nothing to show.</i></h3>
     `;
     contentElement.style.display='none';
 }
@@ -105,12 +104,20 @@ function doShowPanel(commandObj) {
 
     // Add title
     headerElement.innerHTML = `
-       <h3>Current Panel: ${panel.name}</h3>
+       <h3>${panel.name}</h3>
         <p>${panel.description}</p>
     `;
 
     // Update the panel content
-    contentElement.innerHTML = `<p>${panel.content}</p>`;
+    var content = `<p>${panel.content}</p>`;
+    if (commandObj.links) {
+        for (const index in commandObj.links) {
+            const link = commandObj.links[index];
+            content += `\n<button onclick="selectPanel('${link.to}')" style="margin-left: 10px;">${link.to}</button>`
+        }
+    }
+    contentElement.innerHTML = content;
+    
     contentElement.style.display='block';
 }
 

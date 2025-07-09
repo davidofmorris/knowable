@@ -1,5 +1,5 @@
 // Load sample panel data
-const samplePanels = require('./sample-panels');
+const sampleGraph = require('./sample-graph.js');
 
 // action -> handler map
 const handlers = {
@@ -28,11 +28,12 @@ function showStatusCommand(instance) {
   }
 }
 
-function showPanelListCommand(list) {
+// depricated
+function showPanelListCommand() {
   return {
     command: "show-panel-list",
-    panels: list,
-    count: list.length
+    panels: [sampleGraph.root],
+    count: 1
   }  
 }
 
@@ -42,10 +43,11 @@ function clearPanelCommand() {
   }
 }
 
-function showPanelCommand(panel) {
+function showPanelCommand(panel, links) {
   return {
     command: "show-panel",
-    panel: panel
+    panel: panel,
+    links: links
   }
 }
 
@@ -58,16 +60,20 @@ function onShowApp(req) {
   const state = req.sessionState;
 
   commands.push(showStatusCommand(state.instance));
-  commands.push(showPanelListCommand(samplePanels));
+  commands.push(showPanelListCommand());
 
   const panelId = state.activePanelId;
   var panel; 
   if (panelId) {
     panel = findPanel(panelId);
   }
+  if (!panel) {
+    panel = sampleGraph.root;
+  }
 
   if (panel) {
-    commands.push(showPanelCommand(panel));
+    const links = sampleGraph.getLinks(panel);
+    commands.push(showPanelCommand(panel, links));
   } else {
     commands.push(clearPanelCommand());
   }
@@ -78,7 +84,7 @@ function onShowApp(req) {
 function onRefreshPanelList(_req) {
   // on: refresh-panel-list
   const commands = [];
-  commands.push(showPanelListCommand(samplePanels));
+  commands.push(showPanelListCommand());
   return commands;
 }
 
@@ -86,24 +92,25 @@ function onSelectPanel(req) {
   // on: select-panel (id)
   const commands = [];
   const state = req.sessionState;
-  const panelId = req.data['panel-id'] || req.data.id || samplePanels[0].id; // return first panel if none is specified
+  const panelId = req.data['panel-id'] || req.data.id || sampleGraph.root; // return root panel if none is specified
   const panel = findPanel(panelId);
 
   if (!panel) {
     state.activePanelId = -1;
     commands.push(warn(`Panel ${panelId} not found.`));
     commands.push(clearPanelCommand());
-    commands.push(showPanelListCommand(samplePanels));
+    commands.push(showPanelListCommand());
   } else {
     state.activePanelId = panelId;
-    commands.push(showPanelCommand(panel));
+    const links = sampleGraph.getLinks(panel);
+    commands.push(showPanelCommand(panel, links));
   }
 
   return commands;
 }
 
 function findPanel(id) {
-  return samplePanels.find(p => p.id === id);
+  return sampleGraph.getPanel(id);
 }
 
 module.exports = {

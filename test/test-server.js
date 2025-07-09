@@ -99,16 +99,6 @@ async function testShowApp(testData) {
     }
 }
 
-async function testRefreshPanelList(testData) {
-    testData.name = 'Action: refresh-panel-list';
-    const URL = `${apiUrl}server?action=refresh-panel-list`;
-    testData.URL = URL;
-    const response = await fetch(URL);
-    const data = await response.json(); 
-    testResponseStatus(response, 200);
-    testCommandArray(data);  
-}
-
 async function testSelectPanel(testData) {
     testData.name = 'Action: select-panel';
     const URL = `${apiUrl}server?action=select-panel`;
@@ -239,7 +229,6 @@ async function runAllTests() {
     await runTest(testErrorHandling);
 
     await runTest(testShowApp);
-    await runTest(testRefreshPanelList);
     await runTest(testSelectPanel);
     await runTest(testMethodAgnosticAPI);
     

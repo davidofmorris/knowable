@@ -20,7 +20,6 @@ const reconnectDelay = 2000; // 2 seconds
 // DOM elements
 const connectionStatus = document.getElementById('connection-status');
 const apiResponse = document.getElementById('api-response');
-const panelsList = document.getElementById('panels-list');
 
 function initInstance() {
     // Try to get existing instance from localStorage
@@ -60,7 +59,6 @@ const commandHandlers = {
     "warn": doWarn,
     "show-status": doShowStatus,
     "clear-panel": doClearPanel,
-    "show-panel-list": doShowPanelList,
     "show-panel": doShowPanel
 }
 
@@ -80,21 +78,6 @@ function doClearPanel(commandObj) {
         <h3><i>Nothing to show.</i></h3>
     `;
     contentElement.style.display='none';
-}
-
-function doShowPanelList(commandObj) {
-    let html = '<ul>';
-    commandObj.panels.forEach(panel => {
-        html += `
-            <li>
-                <strong>${panel.name}</strong> - ${panel.description}
-                <button onclick="selectPanel('${panel.id}')" style="margin-left: 10px;">Load</button>
-            </li>
-        `;
-    });
-    html += '</ul>';
-    
-    panelsList.innerHTML = html;
 }
 
 function doShowPanel(commandObj) {

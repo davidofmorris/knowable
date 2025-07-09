@@ -4,7 +4,6 @@ const sampleGraph = require('./sample-graph.js');
 // action -> handler map
 const handlers = {
   "show-app": onShowApp,
-  "refresh-panel-list": onRefreshPanelList,
   "select-panel": onSelectPanel
 };
 
@@ -26,15 +25,6 @@ function showStatusCommand(instance) {
     command: "show-status",
     instance: instance
   }
-}
-
-// depricated
-function showPanelListCommand() {
-  return {
-    command: "show-panel-list",
-    panels: [sampleGraph.root],
-    count: 1
-  }  
 }
 
 function clearPanelCommand() {
@@ -60,7 +50,6 @@ function onShowApp(req) {
   const state = req.sessionState;
 
   commands.push(showStatusCommand(state.instance));
-  commands.push(showPanelListCommand());
 
   const panelId = state.activePanelId;
   var panel; 
@@ -81,13 +70,6 @@ function onShowApp(req) {
   return commands;
 }
 
-function onRefreshPanelList(_req) {
-  // on: refresh-panel-list
-  const commands = [];
-  commands.push(showPanelListCommand());
-  return commands;
-}
-
 function onSelectPanel(req) {
   // on: select-panel (id)
   const commands = [];
@@ -99,7 +81,6 @@ function onSelectPanel(req) {
     state.activePanelId = -1;
     commands.push(warn(`Panel ${panelId} not found.`));
     commands.push(clearPanelCommand());
-    commands.push(showPanelListCommand());
   } else {
     state.activePanelId = panelId;
     const links = sampleGraph.getLinks(panel);

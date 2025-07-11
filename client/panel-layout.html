@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Layout Structure</title>
+    <style>
+        .view-frame {
+            border-collapse: collapse;
+            width: 100%;
+            height: 100vh;
+            border: 2px solid #333;
+        }
+        
+        .view-frame td {
+            border: 1px solid #666;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .col-outside-left, .col-outside-right {
+            width: 150px;
+            background-color: #f0f0f0;
+        }
+        
+        .col-middle-stack {
+            background-color: #fafafa;
+        }
+        
+        .middle-stack-table, .inside-panel-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .row-outside-top {
+            height: 60px;
+            background-color: #e8e8e8;
+        }
+        
+        .row-inside-panel {
+            background-color: #fff;
+        }
+        
+        .inside-panel-container {
+            padding: 0;
+        }
+        
+        .inside-panel-table td {
+            border: 1px solid #ccc;
+            padding: 4px;
+        }
+        
+        .row-outside-bottom {
+            height: 60px;
+            background-color: #e8e8e8;
+        }
+        
+        .flow {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <table class="view-frame">
+        <tr>
+            <td class="col-outside-left">
+                <div class="flow outside-left-upper">flow: outside,left,upper (vertical)</div>
+                <div class="flow outside-left-lower">flow: outside,left,lower (vertical)</div>
+            </td>
+            
+            <td class="col-middle-stack">
+                <table class="middle-stack-table">
+                    <tr class="row-outside-top">
+                        <td class="flow outside-top-left">flow: outside,top,left (horizontal)</td>
+                        <td class="flow outside-top-middle">flow: outside,top,middle (horizontal)</td>
+                        <td class="flow outside-top-right">flow: outside,top,right (horizontal)</td>
+                    </tr>
+                    
+                    <tr class="row-inside-panel">
+                        <td colspan="3" class="inside-panel-container">
+                            <table class="inside-panel-table">
+                                <tr>
+                                    <td class="flow inside-left">flow: inside,left (vertical)</td>
+                                    <td class="flow inside-middle">flow: inside,middle (vertical)</td>
+                                    <td class="flow inside-right">flow: inside,right (vertical)</td>
+                                </tr>
+                                <tr>
+                                    <td class="flow inside-bottom-left">flow: inside,bottom,left (horizontal)</td>
+                                    <td class="flow inside-bottom-middle">flow: inside,bottom,middle (horizontal)</td>
+                                    <td class="flow inside-bottom-right">flow: inside,bottom,right (horizontal)</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            
+            <td class="col-outside-right">
+                <div class="flow outside-right-upper">flow: outside,right,upper (vertical)</div>
+                <div class="flow outside-right-lower">flow: outside,right,lower (vertical)</div>
+            </td>
+        </tr>
+        
+        <tr class="row-outside-bottom">
+            <td class="flow outside-bottom-left">flow: outside,bottom,left (horizontal)</td>
+            <td class="flow outside-bottom-middle">flow: outside,bottom,middle (horizontal)</td>
+            <td class="flow outside-bottom-right">flow: outside,bottom,right (horizontal)</td>
+        </tr>
+    </table>
+</body>
+</html>

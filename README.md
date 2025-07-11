@@ -126,3 +126,57 @@ The backend implements instance-based session management:
 - **Real-time API Integration**: Frontend dynamically communicates with backend via WebSocket
 - **Comprehensive Testing**: Automated test suite with JSON results
 - **Railway Ready**: Configured for one-click deployment
+
+## Roadmap - View Model and Layout Strategy
+The goal is a server-driven rendering system that will handle both textual state maps and visual layouts.
+Key components include:
+
+Core Architecture:
+- Server maintains state objects for each session, expanding from static resources
+- Application state includes a model of the client's active view (currently just panel ID)
+- View objects emit client update commands when modified
+- Multiple renderers for different formats: text (.md), data (.json), and HTML for web client
+
+Client Model Concept:
+- Server maintains a client model as a proxy for browser clients and other state change consumers
+- Tree structure representing nested view components
+- Panel-based organization where content is spatially arranged (inside/outside relationships)
+
+View Layout System:
+- Commands ordered by semantic relevance and coherence
+- Focus elements arrive first, related clusters arrive together
+- HTML client uses templates loaded as static resources with content data
+- Detailed grid-based layout structure with outside/inside positioning flows in vertical and horizontal arrangements
+
+The system aims to create a familiar tableau interface with dynamic content organization using spatial metaphors.
+
+The general layout will be:
+table:view-frame
+   col:
+      row:
+         col: outside-left
+            flow: outside,left,upper (vertical)
+            flow: outside,left,lower (vertical)
+
+         col: middle-stack
+            row: outside-top
+               flow: outside,top,left (horizontal)
+               flow: outside,top,middle (horizontal)
+               flow: outside,top,right (horizontal)
+            row: inside-panel
+               row:
+                  flow: inside,left (vertical)
+                  flow: inside,middle (vertical)
+                  flow: inside,right (vertical)
+               row:
+                  flow: inside,bottom,left (horizontal)
+                  flow: inside,bottom,middle (horizontal)
+                  flow: inside,bottom,bottom (horizontal)
+
+         col: outside-right
+            flow: outside,right,upper
+            flow: outside,right,lower
+      row:
+         flow: outside,bottom,left
+         flow: outside,bottom,middle
+         flow: outside,bottom,right

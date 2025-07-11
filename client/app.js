@@ -87,7 +87,7 @@ function doShowPanel(commandObj) {
 
     // Add title
     headerElement.innerHTML = `
-       <h3>${panel.name}</h3>
+        <h3>${panel.name}</h3>
         <p>${panel.description}</p>
     `;
 

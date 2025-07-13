@@ -2,7 +2,7 @@
 const sampleGraph =
 {
     graph_name:"Sample Graph",
-    root: "knowable",
+    rootId: "knowable",
     elements: [
         {isa:"panel",id:"knowable",kind:"directory",name:"knowable directory",
             description: "Knowable project root.",
@@ -52,12 +52,6 @@ const sampleGraph =
     ]
 }
 
-function getRoot() {
-    const rootId = sampleGraph.root;
-    const rootElement = sampleGraph.elements.find(e => e.isa === 'panel' && e.id === rootId);
-    return rootElement;
-}
-
 function getLinks(p) {
     return sampleGraph.elements.filter(e => e.isa === 'link' && e.from === p.id);
 }
@@ -66,8 +60,13 @@ function getPanel(id) {
     return sampleGraph.elements.find(e => e.isa === 'panel' && e.id === id);
 }
 
+function getRoot() {
+    return getPanel(sampleGraph.rootId);
+}
+
 module.exports = {
-    root: getRoot(),
+    rootId: sampleGraph.rootId,
+    getPanel: getPanel,
     getLinks: getLinks,
-    getPanel: getPanel
+    getRoot: getRoot
 };

@@ -109,23 +109,12 @@ function doShowStatus(commandObj) {
 }
 
 function doClearPanel(commandObj) {
-    const headerElement = document.getElementById('panel-header');
     const contentElement = document.getElementById('panel-content');
-    headerElement.innerHTML = `
-        <h3><i>Nothing to show.</i></h3>
-    `;
     contentElement.style.display='none';
 }
 
 async function doShowPanel(commandObj) {
     const panel = commandObj.panel;
-    const headerElement = document.getElementById('panel-header');
-
-    // Add title
-    headerElement.innerHTML = `
-        <h3>${panel.name}</h3>
-        <p>${panel.description}</p>
-    `;
 
     // Get and apply the panel layout
     const layoutBody = await getPanelLayout();

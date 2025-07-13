@@ -1,3 +1,5 @@
+// Application resources
+
 // Configuration
 const API_BASE_URL = 'https://knowable-api.up.railway.app'; // Will be updated when Railway is deployed
 const LOCAL_API_URL = 'http://localhost:3000'; // For local development
@@ -20,6 +22,9 @@ const reconnectDelay = 2000; // 2 seconds
 // DOM elements
 const connectionStatus = document.getElementById('connection-status');
 const apiResponse = document.getElementById('api-response');
+
+// Panel layout cache
+let cachedPanelLayout = null;
 
 function initInstance() {
     // Try to get existing instance from localStorage
@@ -51,6 +56,54 @@ async function showApp() {
 async function selectPanel(id) {
     sendWebSocketMessage('select-panel', { id:id });
 }
+window.selectPanel = selectPanel;
+
+// Get panel layout DOM object
+async function getPanelLayout() {
+    if (cachedPanelLayout) {
+        return cachedPanelLayout.cloneNode(true);
+    }
+    
+    try {
+        const response = await fetch('panel-layout.html');
+        const htmlText = await response.text();
+        
+        // Create a temporary container to parse the HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlText;
+
+        // Remove all placeholder divs from td.flow elements
+        const flowCells = tempDiv.querySelectorAll('td.flow');
+        flowCells.forEach(cell => {
+            // Remove all child divs (placeholders)
+            const divs = cell.querySelectorAll('div');
+            divs.forEach(div => div.remove());
+        });
+        
+        // Cache the parsed content - find the <main> element (skip <style>)
+        cachedPanelLayout = tempDiv.querySelector('main');
+        
+        // Return a clone for use
+        return cachedPanelLayout.cloneNode(true);
+    } catch (error) {
+        console.error('Failed to load panel layout:', error);
+        return null;
+    }
+}
+
+// Apply panel layout to panel-content container
+function applyPanelLayout(layoutBody) {
+    const contentElement = document.getElementById('panel-content');
+    
+    // Clear existing content
+    contentElement.innerHTML = '';
+    
+    // Add the layout body
+    if (layoutBody) {
+        contentElement.appendChild(layoutBody);
+        contentElement.style.display = 'block';
+    }
+}
 
 //
 // command handlers
@@ -80,10 +133,9 @@ function doClearPanel(commandObj) {
     contentElement.style.display='none';
 }
 
-function doShowPanel(commandObj) {
+async function doShowPanel(commandObj) {
     const panel = commandObj.panel;
     const headerElement = document.getElementById('panel-header');
-    const contentElement = document.getElementById('panel-content');
 
     // Add title
     headerElement.innerHTML = `
@@ -91,17 +143,46 @@ function doShowPanel(commandObj) {
         <p>${panel.description}</p>
     `;
 
-    // Update the panel content
-    var content = `<p>${panel.content}</p>`;
+    // Get and apply the panel layout
+    const layoutBody = await getPanelLayout();
+    applyPanelLayout(layoutBody);
+    
+    // Use template service to render panel
+    const templateElement = window.templateService.newElement(panel.kind, panel);
+    if (templateElement) {
+        addElementToFlow('inside-upper-left', templateElement);
+    } else {
+        addTextToFlow('inside-upper-left', panel.name);
+        if (panel.description) {
+            addTextToFlow('inside-upper-left', panel.description);
+        }
+    }
+    
+    // Add navigation links to flow containers
     if (commandObj.links) {
         for (const index in commandObj.links) {
             const link = commandObj.links[index];
-            content += `\n<button onclick="selectPanel('${link.to}')" style="margin-left: 10px;">${link.to}</button>`
+            const linkHtml = `<button class="foo" onclick="window.selectPanel('${link.to}')" style="margin: 5px;">${link.to}</button>`;
+            addTextToFlow(link.loc, linkHtml);
         }
     }
-    contentElement.innerHTML = content;
-    
-    contentElement.style.display='block';
+}
+
+// Helper function to add content to specific flow containers
+function addElementToFlow(flowId, element) {
+    const flowElement = document.getElementById(flowId);
+    if (flowElement) {
+        flowElement.appendChild(element);
+    }
+}
+
+function addTextToFlow(flowId, content) {
+    const flowElement = document.getElementById(flowId);
+    if (flowElement) {
+        const newDiv = document.createElement('div');
+        newDiv.innerHTML = content;
+        flowElement.appendChild(newDiv);
+    }
 }
 
 //
@@ -205,7 +286,10 @@ function updateConnectionStatus(type) {
 }
 
 // Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize template service
+    await window.templateService.loadTemplateFile('panel-templates.html');
+    
     // Try WebSocket first, fallback to HTTP
     connectWebSocket();
  });

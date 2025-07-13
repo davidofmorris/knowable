@@ -1,0 +1,19 @@
+<template id="directory">
+    <div style='text-align:left;'>
+        <div name="name" style='font-weight: bold;'>name</div>
+        <br>
+        <div name="description" style='text-align:left; display:none'>description</div>
+    </div>
+</template>
+<script>
+    window.templateService.register('directory', (data) => {
+        const t = document.getElementById("directory");
+        const c = t.content.cloneNode(true);
+        c.querySelector("div[name='name']").textContent = data.name;
+        if (data.description) {
+            c.querySelector("div[name='description']").textContent = data.description;
+            c.querySelector("div[name='description']").style.display = 'block';
+        }
+        return c;
+    });
+</script>

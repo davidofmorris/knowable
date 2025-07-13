@@ -238,7 +238,17 @@ async function runAllTests() {
 
 // Create HTTP server
 const server = http.createServer(async (req, res) => {
-    if (req.url === '/test-results' || req.url === '/') {
+    console.log("URL:" + req.url);
+    if (req.url === '/favicon.ico' || req.url === 'favicon.ico') {
+        try {
+            const favicon = fs.readFileSync('./favicon.ico');
+            res.writeHead(200, { 'Content-Type': 'image/x-icon' });
+            res.end(favicon);
+        } catch (error) {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Favicon not found');
+        }
+    } else if (req.url === '/test-results' || req.url === '/') {
         try {
             // Run tests fresh each time
             await runAllTests();

@@ -140,6 +140,9 @@ function handleServerRequest(req, res) {
 app.get('/api/server', handleServerRequest);
 app.post('/api/server', handleServerRequest);
 
+// Serve static files from public directory
+app.use(express.static('public'));
+
 // Fallback handler for unmatched routes
 app.use((req, res, next) => {
   res.status(404).send('Sorry, the page you are looking for does not exist.');

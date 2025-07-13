@@ -58,6 +58,32 @@ async function selectPanel(id) {
 }
 window.selectPanel = selectPanel;
 
+// Register grid
+window.gridService = function() {
+    var showGrid = false; // off
+    function isShowGrid() { return showGrid; }
+    function refreshGrid() {
+        const elementsToClean = document.querySelectorAll('td.flow');
+        elementsToClean.forEach(element => {
+            if (showGrid) {
+                element.classList.add('show-grid');
+            } else {
+                element.classList.remove('show-grid');
+            }
+        });
+    }
+    function toggleGrid() {
+        showGrid = !showGrid;
+        refreshGrid();
+    }
+    return {
+        isShowGrid: isShowGrid,
+        refreshGrid: refreshGrid,
+        toggleGrid: toggleGrid
+    }
+}();
+
+
 // Get panel layout DOM object
 async function getPanelLayout() {
     if (cachedPanelLayout) {
@@ -132,10 +158,15 @@ async function doShowPanel(commandObj) {
         if (templateElement) {
             addElementToFlow(step.flow, templateElement);
         } else {
+            console.warn(`Missing template: ${step.template}`);
+            console.log("Test for echo!");
+            console.log("Templates: " + window.templateService.listTemplates());
+
             addTextToFlow(step.flow, step.data.to);
             addTextToFlow(step.flow, step.data.kind);
         }
     }
+    window.gridService.refreshGrid();
 }
 
 // Helper function to add content to specific flow containers
@@ -143,6 +174,8 @@ function addElementToFlow(flowId, element) {
     const flowElement = document.getElementById(flowId);
     if (flowElement) {
         flowElement.appendChild(element);
+    } else {
+        console.warn(`flow not found: ${flowId}`);
     }
 }
 
@@ -152,6 +185,8 @@ function addTextToFlow(flowId, content) {
         const newDiv = document.createElement('div');
         newDiv.innerHTML = content;
         flowElement.appendChild(newDiv);
+    } else {
+        console.warn(`flow not found: ${flowId}`);
     }
 }
 

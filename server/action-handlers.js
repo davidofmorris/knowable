@@ -44,12 +44,8 @@ function clearPanelCommand() {
   }
 }
 
-function showPanelCommand(panel, links) {
-  return {
-    command: "show-panel",
-    panel: panel,
-    links: links
-  }
+function showPanelCommand(steps) {
+  return {command:'show-panel', steps:steps};
 }
 
 //
@@ -104,15 +100,34 @@ function onSelectPanel(req) {
 
 function buildDirectory(commands, panel) {
   commands.push(log('building showPanel command for ' + panel.kind + ": " + panel.name));
-  const links = sampleGraph.getLinks(panel);
-
   const steps = [];
-  steps.push({template:'directory', data:panel, flow:'inside-upper-left'});
-  for (const link of links) {
-    const flow = (link.kind === 'sub-directory') ? 'inside-lower-left' : 'outside-left-upper';
-    steps.push({template:'link', data:link, flow:flow});
+  
+  // focus flow
+  steps.push({template:'directory-focus-left', data:panel, flow:'inside-top-left'});
+  steps.push({template:'directory-focus-right', data:panel, flow:'inside-top-right'});
+
+  // sub-directories
+  const subDirLinks = sampleGraph.getLinks(panel.id, 'sub-directory');
+  for (const link of subDirLinks) {
+    steps.push({template:'link', data:link, flow:'inside-left-lower'});
   }
-  commands.push({command:'show-panel', steps:steps});
+
+  // parent directories
+  const ancestors = [];
+  let pLink = sampleGraph.getLink(panel.id, 'parent-directory');
+  while (pLink) {
+    ancestors.push({template:'link', data:pLink, flow:'outside-left-upper'});
+    pLink = sampleGraph.getLink(pLink.to, 'parent-directory');
+  }
+  while (ancestors.length > 0) {
+    steps.push(ancestors.pop());
+  }
+
+  // files (mock)
+  for (var i = 0; i < 7; i++) {
+    steps.push({template:'file-link', data:{filename:`file_${i}.txt`}, flow:'inside-focus'});
+  }
+  commands.push(showPanelCommand(steps));
 }
 
 module.exports = {

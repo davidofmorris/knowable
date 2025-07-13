@@ -1,25 +1,41 @@
-<template id="directory">
-    <div style='text-align:left;'>
+<template id="directory-focus-left">
+    <div style='text-align:left; vertical-align:top; height:100%; '>
         <div name="name" style='font-weight: bold;'>name</div>
-        <br>
-        <div name="description" style='display:none'>description</div>
     </div>
 </template>
 <script>
-    window.templateService.register('directory', (data) => {
-        const t = document.getElementById("directory");
+    window.templateService.register('directory-focus-left', (data) => {
+        const t = document.getElementById("directory-focus-left");
         const c = t.content.cloneNode(true);
         c.querySelector("div[name='name']").textContent = data.name;
+        return c;
+    });
+</script>
+
+<template id="directory-focus-right">
+    <div style='text-align:left; vertical-align:top; height:100%; '>
+        <div name="description" style='display:none'>description</div>
+        <div name="content" style='display:none'>content</div>
+    </div>
+</template>
+<script>
+    window.templateService.register('directory-focus-right', (data) => {
+        const t = document.getElementById("directory-focus-right");
+        const c = t.content.cloneNode(true);
         if (data.description) {
             c.querySelector("div[name='description']").textContent = data.description;
             c.querySelector("div[name='description']").style.display = 'block';
+        }
+        if (data.content) {
+            c.querySelector("div[name='content']").textContent = data.content;
+            c.querySelector("div[name='content']").style.display = 'block';
         }
         return c;
     });
 </script>
 
 <template id="link">
-    <div style="text-align:left; "><button onclick="window.selectPanel('${link.to}')" style="margin: 5px; ">click me</button></div>
+    <div style="text-align:left; "><button style="margin: 5px; ">click me</button></div>
 </template>
 <script>
     window.templateService.register('link', (data) => {
@@ -30,6 +46,19 @@
         button.onclick = function() {
             window.selectPanel(data.to);
         }
+        return c;
+    });
+</script>
+
+<template id="file-link">
+    <div style="text-align:left; width:100%; "><div style="margin: 5px; ">filename</div></div>
+</template>
+<script>
+    window.templateService.register('file-link', (data) => {
+        const t = document.getElementById("file-link");
+        const c = t.content.cloneNode(true);
+        const div = c.querySelector("div");
+        div.textContent = data.filename;
         return c;
     });
 </script>

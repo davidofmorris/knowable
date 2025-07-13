@@ -7,7 +7,14 @@
         .view-frame {
             border: 1px solid whitesmoke;
         }
+        td.show-grid {
+            border: 1px solid lightgrey !important;
+        }
         
+        .view-frame td.flow {
+            border: 1px solid transparent;
+        }
+
         .view-frame td {
             border: 0;
             padding: 0;
@@ -58,24 +65,57 @@
                     <tr name="row-inside-panel" style="height:100%;">
                         <td name="inside-panel-container" colspan="3">
                             <table class="inside-panel-table" style="width:100%; height:100%; border: 3px solid lightblue; padding: 1px;">
-                                <tr><td>
-                                    <table style="width:100%; height:100%">
-                                        <tr>
-                                            <td class="flow" id="inside-upper-left"><div>flow: inside,upper,left (vertical)</div></td>
-                                            <td class="flow" id="inside-upper-middle"><div>flow: inside,upper,middle (vertical)</div></td>
-                                            <td class="flow" id="inside-upper-right"><div>flow: inside,upper,right (vertical)</div></td>
-                                        </tr>
-                                    </table>
-                                </td>                                </tr>
-                                <tr><td>
-                                    <table style="width:100%; height:100%">
-                                        <tr>
-                                            <td class="flow" id="inside-lower-left"><div>flow: inside,lower,left (horizontal)</div></td>
-                                            <td class="flow" id="inside-lower-middle"><div>flow: inside,lower,middle (horizontal)</div></td>
-                                            <td class="flow" id="inside-lower-right"><div>flow: inside,lower,right (horizontal)</div></td>
-                                        </tr>
-                                    </table>
-                                </td></tr>
+                                <tr> 
+                                    <td> <!--left-->
+                                        <table style="height:100%; width:100%;">
+                                            <tr><td class="flow" id="inside-left-upper" style="height:50%; ">
+                                                <div>inside-left-upper</div>
+                                            </td></tr>
+                                            <tr><td class="flow" id="inside-left-middle" style="height:50%; ">
+                                                <div>inside-left-middle</div>
+                                            </td></tr>
+                                            <tr><td class="flow" id="inside-left-lower" style="height:50%; ">
+                                                <div>inside-left-lower</div>
+                                            </td></tr>
+                                        </table>                                        
+                                    </td>
+                                    <td style="width:100%; height:100%; "> <!--center x top/middle-->
+                                        <table style="height:100%; width:100%; ">
+                                            <tr>
+                                                <td class="flow" id="inside-top-left"><div>inside-top-left</div></td>
+                                                <td class="flow" id="inside-top-center"><div>inside-top-center</div></td>
+                                                <td class="flow" id="inside-top-right"><div>inside-top-right</div></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan=3 class="flow" id="inside-focus" style="width:100%; height:100%; "><div>inside-focus</div></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td> <!--right-->
+                                        <table style="height:100%; width:100%;">
+                                            <tr><td class="flow" id="inside-right-upper" style="height:50%; ">
+                                                <div>inside-right-upper</div>
+                                            </td></tr>
+                                            <tr><td class="flow" id="inside-right-middle" style="height:50%; ">
+                                                <div>inside-right-middle</div>
+                                            </td></tr>
+                                            <tr><td class="flow" id="inside-right-lower" style="height:50%; ">
+                                                <div>inside-right-lower</div>
+                                            </td></tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr> <!--bottom x left|center|right-->
+                                    <td colspan=3>
+                                        <table style="height:100%; width:100%; ">
+                                            <tr>
+                                                <td class="flow" id="inside-bottom-left"><div>inside-bottom-left</div></td>
+                                                <td class="flow" id="inside-bottom-center"><div>inside-bottom-center</div></td>
+                                                <td class="flow" id="inside-bottom-right"><div>inside-bottom-right</div></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
                             </table>
                         </td>
                     </tr>

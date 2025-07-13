@@ -7,10 +7,9 @@ function cloneElement(templateId) {
     return template.content.cloneNode(true);
 }
 
-const templateService = {
-    templates: new Map(),
-
-    async loadTemplateFile(filename) {
+window.templateService = function() {
+    const templates = new Map();
+    async function loadTemplateFile(filename) {
         try {
             const response = await fetch(`templates/${filename}`);
             const htmlText = await response.text();
@@ -32,27 +31,43 @@ const templateService = {
         } catch (error) {
             console.error(`Failed to load template file ${filename}:`, error);
         }
-    },
+    }
+    
+    function listTemplates() {
+        var out = "";
+        for (const [k,v] of templates) {
+            out += k + ', ';
+        }
+        return out;
+    }
 
-    getTemplate(id) {
-        return this.templates.get(id);
-    },
+    function getTemplate(id) {
+        return templates.get(id);
+    }
 
-    newElement(id, data) {
-        const templateFn = this.templates.get(id);
+    function newElement(id, data) {
+        const templateFn = templates.get(id);
         if (!templateFn) {
             console.error(`Template "${id}" not found`);
             return null;
         }
         return templateFn(data);
-    },
-
-    register(id, templateFn) {
-        this.templates.set(id, templateFn);
     }
-};
+    
+    function register(id, templateFn) {
+        console.log("*** REGISTER: " + id);
+        templates.set(id, templateFn);
+        console.log("templates.get(id): " + templates.get(id));
+    }
 
-window.templateService = templateService;
+    return {
+        loadTemplateFile: loadTemplateFile,
+        listTemplates: listTemplates,
+        getTemplate: getTemplate,
+        newElement: newElement,
+        register: register
+    }
+}();
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = templateService;

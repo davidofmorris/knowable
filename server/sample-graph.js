@@ -52,8 +52,12 @@ const sampleGraph =
     ]
 }
 
-function getLinks(p) {
-    return sampleGraph.elements.filter(e => e.isa === 'link' && e.from === p.id);
+function getLink(from, kind) {
+    return sampleGraph.elements.find(e => e.isa === 'link' && e.from === from && e.kind === kind);
+}
+
+function getLinks(from, kind) {
+    return sampleGraph.elements.filter(e => e.isa === 'link' && e.from === from && e.kind === kind);
 }
 
 function getPanel(id) {
@@ -67,6 +71,7 @@ function getRoot() {
 module.exports = {
     rootId: sampleGraph.rootId,
     getPanel: getPanel,
+    getLink: getLink,
     getLinks: getLinks,
     getRoot: getRoot
 };

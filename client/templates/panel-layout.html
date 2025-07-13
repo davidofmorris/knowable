@@ -1,0 +1,122 @@
+<template id="panel-layout">
+    <main>
+    <style>
+        main table {
+            border-collapse: collapse;
+        }
+        .view-frame {
+            border: 1px solid whitesmoke;
+        }
+        
+        .view-frame td {
+            border: 0;
+            padding: 0;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .flow {
+            font-family: monospace;
+            font-size: 12px;
+            color: grey;
+            margin: 10px;
+            padding: 10px !important;
+        }
+        .view-frame {
+            background-color: whitesmoke;
+        }
+
+        table.inside-panel-table {
+            background-color: white;
+        }
+    main {
+            width: 100%;
+            height: 100%;
+        }   
+    </style>
+    <table class="view-frame" style="width:100%; height:100%;">
+        <tr>
+            <td name="col-outside-left" style="height:100%; width:20%; ">
+                <table style="height:100%; width:100%;">
+                    <tr><td class="flow" id="outside-left-upper" style="height:50%; ">
+                        <div>flow: outside,left,upper (vertical)</div>
+                    </td></tr>
+                    <tr><td class="flow" id="outside-left-lower" style="height:50%; ">
+                        <div>flow: outside,left,lower (vertical)</div>
+                    </td></tr>
+                </table>
+            </td>
+            
+            <td name="col-middle-stack" style="height:80%; width:60%; ">
+                <table name="middle-stack-table" style="width:100%; height:100%;">
+                    <tr class="row-outside-top">
+                        <td class="flow" id="outside-top-left"><div>flow: outside,top,left (horizontal)</div></td>
+                        <td class="flow" id="outside-top-middle"><div>flow: outside,top,middle (horizontal)</div></td>
+                        <td class="flow" id="outside-top-right"><div>flow: outside,top,right (horizontal)</div></td>
+                    </tr>
+                    
+                    <tr name="row-inside-panel" style="height:100%;">
+                        <td name="inside-panel-container" colspan="3">
+                            <table class="inside-panel-table" style="width:100%; height:100%; border: 3px solid lightblue; padding: 1px;">
+                                <tr><td>
+                                    <table style="width:100%; height:100%">
+                                        <tr>
+                                            <td class="flow" id="inside-upper-left"><div>flow: inside,upper,left (vertical)</div></td>
+                                            <td class="flow" id="inside-upper-middle"><div>flow: inside,upper,middle (vertical)</div></td>
+                                            <td class="flow" id="inside-upper-right"><div>flow: inside,upper,right (vertical)</div></td>
+                                        </tr>
+                                    </table>
+                                </td>                                </tr>
+                                <tr><td>
+                                    <table style="width:100%; height:100%">
+                                        <tr>
+                                            <td class="flow" id="inside-lower-left"><div>flow: inside,lower,left (horizontal)</div></td>
+                                            <td class="flow" id="inside-lower-middle"><div>flow: inside,lower,middle (horizontal)</div></td>
+                                            <td class="flow" id="inside-lower-right"><div>flow: inside,lower,right (horizontal)</div></td>
+                                        </tr>
+                                    </table>
+                                </td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            
+            <td name="col-outside-right" style="height:100%; width:20%; ">
+                <table style="height:100%; width:100%;">
+                    <tr><td class="flow" id="outside-right-upper" style="height:50%; ">
+                        <div>flow: outside,right,upper (vertical)</div>
+                    </td></tr>
+                    <tr><td class="flow" id="outside-right-lower" style="height:50%; ">
+                        <div>flow: outside,right,lower (vertical)</div>
+                    </td></tr>
+                </table>
+            </td>
+        </tr>
+        
+        <tr name="row-outside-bottom"><td colspan="3">
+            <table style="width:100%; height:100%"><tr>
+            <td class="flow" id="outside-bottom-left"><div>flow: outside,bottom,left (horizontal)</div></td>
+            <td class="flow" id="outside-bottom-middle"><div>flow: outside,bottom,middle (horizontal)</div></td>
+            <td class="flow" id="outside-bottom-right"><div>flow: outside,bottom,right (horizontal)</div></td>
+            </tr></table>
+        </td></tr>
+    </table>
+    </main>
+</template>
+<script>
+    window.templateService.register('panel-layout', (data) => {
+        const template = document.getElementById("panel-layout");
+        const clone = template.content.cloneNode(true);
+        
+        // Remove all placeholder divs from td.flow elements
+        const flowCells = clone.querySelectorAll('td.flow');
+        flowCells.forEach(cell => {
+            const divs = cell.querySelectorAll('div');
+            divs.forEach(div => div.remove());
+        });
+        
+        // Return the <main> element
+        return clone.querySelector('main');
+    });
+</script>

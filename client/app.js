@@ -64,31 +64,15 @@ async function getPanelLayout() {
         return cachedPanelLayout.cloneNode(true);
     }
     
-    try {
-        const response = await fetch('panel-layout.html');
-        const htmlText = await response.text();
-        
-        // Create a temporary container to parse the HTML
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlText;
-
-        // Remove all placeholder divs from td.flow elements
-        const flowCells = tempDiv.querySelectorAll('td.flow');
-        flowCells.forEach(cell => {
-            // Remove all child divs (placeholders)
-            const divs = cell.querySelectorAll('div');
-            divs.forEach(div => div.remove());
-        });
-        
-        // Cache the parsed content - find the <main> element (skip <style>)
-        cachedPanelLayout = tempDiv.querySelector('main');
-        
-        // Return a clone for use
+    // Use template service to get the panel layout
+    const layoutElement = window.templateService.newElement('panel-layout');
+    if (layoutElement) {
+        cachedPanelLayout = layoutElement;
         return cachedPanelLayout.cloneNode(true);
-    } catch (error) {
-        console.error('Failed to load panel layout:', error);
-        return null;
     }
+    
+    console.error('Failed to load panel layout template');
+    return null;
 }
 
 // Apply panel layout to panel-content container
@@ -289,6 +273,7 @@ function updateConnectionStatus(type) {
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize template service
     await window.templateService.loadTemplateFile('panel-templates.html');
+    await window.templateService.loadTemplateFile('panel-layout.html');
     
     // Try WebSocket first, fallback to HTTP
     connectWebSocket();

@@ -94,13 +94,20 @@ function applyPanelLayout(layoutBody) {
 //
 const commandHandlers = {
     "warn": doWarn,
+    "log": doLog,
     "show-status": doShowStatus,
     "clear-panel": doClearPanel,
     "show-panel": doShowPanel
 }
 
 function doWarn(commandObj) {
-    console.log("Server Warning: " + commandObj.message);
+    console.warn("Server Warning: " + commandObj.message);
+    apiResponse.textContent = JSON.stringify(commandObj, null, 2);
+}
+
+function doLog(commandObj) {
+    console.log("Server Info: " + commandObj.message);
+    apiResponse.textContent = JSON.stringify(commandObj, null, 2);
 }
 
 function doShowStatus(commandObj) {
@@ -114,29 +121,19 @@ function doClearPanel(commandObj) {
 }
 
 async function doShowPanel(commandObj) {
-    const panel = commandObj.panel;
+    const steps = commandObj.steps;
 
     // Get and apply the panel layout
     const layoutBody = await getPanelLayout();
     applyPanelLayout(layoutBody);
-    
-    // Use template service to render panel
-    const templateElement = window.templateService.newElement(panel.kind, panel);
-    if (templateElement) {
-        addElementToFlow('inside-upper-left', templateElement);
-    } else {
-        addTextToFlow('inside-upper-left', panel.name);
-        if (panel.description) {
-            addTextToFlow('inside-upper-left', panel.description);
-        }
-    }
-    
-    // Add navigation links to flow containers
-    if (commandObj.links) {
-        for (const index in commandObj.links) {
-            const link = commandObj.links[index];
-            const linkHtml = `<button class="foo" onclick="window.selectPanel('${link.to}')" style="margin: 5px;">${link.to}</button>`;
-            addTextToFlow(link.loc, linkHtml);
+
+    for (const step of steps) {
+        const templateElement = window.templateService.newElement(step.template, step.data);
+        if (templateElement) {
+            addElementToFlow(step.flow, templateElement);
+        } else {
+            addTextToFlow(step.flow, step.data.to);
+            addTextToFlow(step.flow, step.data.kind);
         }
     }
 }

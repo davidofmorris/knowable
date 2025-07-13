@@ -2,7 +2,7 @@
     <div style='text-align:left;'>
         <div name="name" style='font-weight: bold;'>name</div>
         <br>
-        <div name="description" style='text-align:left; display:none'>description</div>
+        <div name="description" style='display:none'>description</div>
     </div>
 </template>
 <script>
@@ -13,6 +13,22 @@
         if (data.description) {
             c.querySelector("div[name='description']").textContent = data.description;
             c.querySelector("div[name='description']").style.display = 'block';
+        }
+        return c;
+    });
+</script>
+
+<template id="link">
+    <div style="text-align:left; "><button onclick="window.selectPanel('${link.to}')" style="margin: 5px; ">click me</button></div>
+</template>
+<script>
+    window.templateService.register('link', (data) => {
+        const t = document.getElementById("link");
+        const c = t.content.cloneNode(true);
+        const button = c.querySelector("button");
+        button.textContent = data.to;
+        button.onclick = function() {
+            window.selectPanel(data.to);
         }
         return c;
     });

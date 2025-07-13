@@ -7,12 +7,23 @@ const handlers = {
   "select-panel": onSelectPanel
 };
 
+const panelBuilders = {
+  "directory": buildDirectory,
+};
+
 //
 // generic command factories
 //
 function warn(message) {
   return {
     command: "warn",
+    message: message,
+  }
+}
+
+function log(message) {
+  return {
+    command: "log",
     message: message,
   }
 }
@@ -61,8 +72,8 @@ function onShowApp(req) {
   }
 
   if (panel) {
-    const links = sampleGraph.getLinks(panel);
-    commands.push(showPanelCommand(panel, links));
+    const builder = panelBuilders[panel.kind];
+    builder(commands, panel);
   } else {
     commands.push(clearPanelCommand());
   }
@@ -83,10 +94,25 @@ function onSelectPanel(req) {
   }
 
   state.activePanelId = panelId;
-  const links = sampleGraph.getLinks(panel);
-  commands.push(showPanelCommand(panel, links));
-  
+
+  // get builder for the selected panel
+  const builder = panelBuilders[panel.kind];
+  builder(commands, panel);
+
   return commands;
+}
+
+function buildDirectory(commands, panel) {
+  commands.push(log('building showPanel command for ' + panel.kind + ": " + panel.name));
+  const links = sampleGraph.getLinks(panel);
+
+  const steps = [];
+  steps.push({template:'directory', data:panel, flow:'inside-upper-left'});
+  for (const link of links) {
+    const flow = (link.kind === 'sub-directory') ? 'inside-lower-left' : 'outside-left-upper';
+    steps.push({template:'link', data:link, flow:flow});
+  }
+  commands.push({command:'show-panel', steps:steps});
 }
 
 module.exports = {

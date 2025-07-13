@@ -15,12 +15,17 @@ A visual graph explorer.
 knowable/
 ├── client/                  # GitHub Pages frontend
 │   ├── index.html         # Main application interface
-│   └── app.js             # Client-side logic
+│   ├── app.js             # Client-side logic
+│   ├── template-service.js # Template management service
+│   ├── favicon.ico        # Site favicon
+│   └── templates/         # HTML template files
+│       ├── panel-layout.html
+│       └── panel-templates.html
 ├── server/                # Node.js backend
 │   ├── server.js          # Express server
 │   ├── action-handlers.js # Maps actions to handlers
 │   ├── sample-graph.js    # Sample data
-│   ├── package.json
+│   └── package.json
 ├── test/                  # Test infrastructure
 │   ├── test-server.js
 │   └── package.json
@@ -29,9 +34,10 @@ knowable/
 │   ├── scripts/           # Management scripts
 │   ├── install-services.sh
 │   └── README.md
-├── .github/workflows/     
-│   ├── static.yml         # Publishes to GitHub Pages
+├── notes/                 # Project notes
+├── CLAUDE.md             # Claude Code project instructions
 ├── LICENSE
+├── package.json          # Root package configuration
 └── README.md
 ```
 

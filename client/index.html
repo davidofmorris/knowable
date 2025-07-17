@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color:rgb(34, 33, 32)">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Knowable - graph explorer</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
-        body {
+        html,body {
+            width:100%; height:100%;
+            margin: auto;
+        }
+        /* body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            /* margin: 0 auto;
+            /* padding: 20px;
             background-color: #f5f5f5;
         }
         .container {
@@ -37,7 +41,7 @@
             margin: 10px 0;
             border-left: 4px solid #2196f3;
         }
-        .panel-content {
+        .dream-body {
             margin: 20px 0;
             padding: 20px;
             background: #f0f0f0;
@@ -59,34 +63,45 @@
             background: #e8f5e8;
             padding: 10px;
             border-radius: 5px;
-        }
+        } */
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="app-title">Knowable - graph explorer</h2>
-        <div style="float:right; ">
-            <button style="margin: 5px; " onclick="window.gridService.toggleGrid()">grid</button>
-        </div>
-        <div class="top-level-panel">
-            <div id="panel-container">
-                <div id="panel-content" class="panel-content" style="display:none;">
-                    <p>Panel content will appear here...</p>
+    <table id="sizer-table" style="border:0; display:none;">
+        <tr><td nowrap><div id="dream" style="font-size:larger;">d r e a m<br>d r e a m</div></td></tr>
+    </table>
+
+    <table style="width:100%; height:100%;">
+        <tr>
+            <td>
+                <div id="dream-body" style="margin: auto; ">
+                    <div style="float:right; ">
+                        <button style="margin: 5px; " onclick="window.gridService.toggleGrid()">grid</button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>    
+
+        <div class="top-level-panel" style="display:none; ">
+            <div style="float:right; ">
+                <button id="status-open-button" style="margin: 5px; " onclick="window.statusService.toggleOpen()"> + </button>
+            </div>
+            <div id="top-status-panel" style="display:none; ">
+                <div id="connection-status" class="loading">Testing connection...</div>
+                
+                <div class="api-test">
+                    <h4>API Response:</h4>
+                    <pre id="api-response">Loading...</pre>
                 </div>
             </div>
         </div>
-
-        <div class="top-level-panel">
-            <div id="connection-status" class="loading">Testing connection...</div>
-            
-            <div class="api-test">
-                <h4>API Response:</h4>
-                <pre id="api-response">Loading...</pre>
-            </div>
-        </div>
-    </div>
+    <!-- </div> -->
 
     <script src="template-service.js"></script>
+    <script src="layout-service.js"></script>
+    <script src="resize-service.js"></script>
+    <script src="grid-service.js"></script>
     <script type="module" src="app.js"></script>
 </body>
 </html>

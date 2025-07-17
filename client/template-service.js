@@ -1,12 +1,3 @@
-function cloneElement(templateId) {
-    const template = document.getElementById(templateId);
-    if (!template) {
-        console.error(`Template with id "${templateId}" not found`);
-        return null;
-    }
-    return template.content.cloneNode(true);
-}
-
 window.templateService = function() {
     const templates = new Map();
     async function loadTemplateFile(filename) {
@@ -60,12 +51,23 @@ window.templateService = function() {
         console.log("templates.get(id): " + templates.get(id));
     }
 
+    function parseHtml(html) {
+        const bench = document.createElement("div");
+        bench.innerHTML = html;
+        return bench.children[0];
+    }
+
+    const util = {
+        parseHtml: parseHtml
+    }
+
     return {
         loadTemplateFile: loadTemplateFile,
         listTemplates: listTemplates,
         getTemplate: getTemplate,
         newElement: newElement,
-        register: register
+        register: register,
+        util: util
     }
 }();
 

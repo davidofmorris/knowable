@@ -23,9 +23,6 @@ const reconnectDelay = 2000; // 2 seconds
 const connectionStatus = document.getElementById('connection-status');
 const apiResponse = document.getElementById('api-response');
 
-// Panel layout cache
-let cachedPanelLayout = null;
-
 function initInstance() {
     // Try to get existing instance from localStorage
     let instance = sessionStorage.getItem('knowable-instance');
@@ -58,55 +55,35 @@ async function selectPanel(id) {
 }
 window.selectPanel = selectPanel;
 
-// Register grid
-window.gridService = function() {
-    var showGrid = false; // off
-    function isShowGrid() { return showGrid; }
-    function refreshGrid() {
-        const elementsToClean = document.querySelectorAll('td.flow');
-        elementsToClean.forEach(element => {
-            if (showGrid) {
-                element.classList.add('show-grid');
-            } else {
-                element.classList.remove('show-grid');
-            }
-        });
+// Register statusService
+window.statusService = function() {
+    var isOpen = false; // off
+    const element = document.getElementById('top-status-panel');
+    const button = document.getElementById('status-open-button');
+    function applyState() {
+        if (isOpen) {
+            element.style.display='block';
+            button.textContent=' - ';
+        } else {
+            element.style.display='none';
+            button.textContent=' + ';
+        }
     }
-    function toggleGrid() {
-        showGrid = !showGrid;
-        refreshGrid();
+    function toggleOpen() {
+        isOpen = !isOpen;
+        applyState();
     }
     return {
-        isShowGrid: isShowGrid,
-        refreshGrid: refreshGrid,
-        toggleGrid: toggleGrid
+        toggleOpen: toggleOpen
     }
 }();
 
-
-// Get panel layout DOM object
-async function getPanelLayout() {
-    if (cachedPanelLayout) {
-        return cachedPanelLayout.cloneNode(true);
-    }
-    
-    // Use template service to get the panel layout
-    const layoutElement = window.templateService.newElement('panel-layout');
-    if (layoutElement) {
-        cachedPanelLayout = layoutElement;
-        return cachedPanelLayout.cloneNode(true);
-    }
-    
-    console.error('Failed to load panel layout template');
-    return null;
-}
-
-// Apply panel layout to panel-content container
+// Apply panel layout to dream-body container
 function applyPanelLayout(layoutBody) {
-    const contentElement = document.getElementById('panel-content');
+    const contentElement = document.getElementById('dream-body');
     
     // Clear existing content
-    contentElement.innerHTML = '';
+    contentElement.innerHTML = '';  // todo: is this making the [grid] button go away?
     
     // Add the layout body
     if (layoutBody) {
@@ -142,7 +119,7 @@ function doShowStatus(commandObj) {
 }
 
 function doClearPanel(commandObj) {
-    const contentElement = document.getElementById('panel-content');
+    const contentElement = document.getElementById('dream-body');
     contentElement.style.display='none';
 }
 
@@ -150,7 +127,7 @@ async function doShowPanel(commandObj) {
     const steps = commandObj.steps;
 
     // Get and apply the panel layout
-    const layoutBody = await getPanelLayout();
+    const layoutBody = await window.layoutService.getLayout();
     applyPanelLayout(layoutBody);
 
     for (const step of steps) {
@@ -292,9 +269,11 @@ function updateConnectionStatus(type) {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async () => {
+    window.resizeService.init();
+    window.layoutService.init();
+
     // Initialize template service
     await window.templateService.loadTemplateFile('panel-templates.html');
-    await window.templateService.loadTemplateFile('panel-layout.html');
     
     // Try WebSocket first, fallback to HTTP
     connectWebSocket();

@@ -1,5 +1,5 @@
 // Load sample panel data
-const sampleGraph = require('./sample-graph.js');
+const sampleGraph = require('./sample-graph-2.js');
 
 // action -> handler map
 const handlers = {
@@ -8,6 +8,7 @@ const handlers = {
 };
 
 const panelBuilders = {
+  "card": buildCard,
   "directory": buildDirectory,
 };
 
@@ -93,9 +94,39 @@ function onSelectPanel(req) {
 
   // get builder for the selected panel
   const builder = panelBuilders[panel.kind];
-  builder(commands, panel);
+  if (!builder) {
+    const message = "No panel builder registered: " + panel.kind;
+    console.warn(message);
+    commands.push({command:'warn', message:message});
+  } else {
+    builder(commands, panel);
+  }
 
   return commands;
+}
+
+function buildCard(commands, panel) {
+  commands.push(log('building showPanel command for ' + panel.kind + ": " + panel.name));
+  const steps = [];
+  
+  // focus flow
+//  steps.push({template:'card-focus', data:panel, flow:'inside-top-center'});
+  steps.push({template:'title-1', data:{title:panel.name}, flow:'inside-top-center'});
+  steps.push({template:'content-html', data:panel, flow:'inside-focus'});
+  steps.push({template:'centered-text-1', data:{text:panel.description}, flow:'inside-bottom-center'});
+
+  // child-card
+  const subDirLinks = sampleGraph.getLinks(panel.id, 'child-card');
+  for (const link of subDirLinks) {
+    steps.push({template:'link', data:link, flow:'inside-right-middle'});
+  }
+
+  // parent-card
+  followLinks(panel.id,'parent-card','outside-left-upper',steps);
+
+  // directory
+  followLinks(panel.id,'directory','outside-right-lower',steps);
+  commands.push(showPanelCommand(steps));
 }
 
 function buildDirectory(commands, panel) {
@@ -113,21 +144,28 @@ function buildDirectory(commands, panel) {
   }
 
   // parent directories
-  const ancestors = [];
-  let pLink = sampleGraph.getLink(panel.id, 'parent-directory');
-  while (pLink) {
-    ancestors.push({template:'link', data:pLink, flow:'outside-left-upper'});
-    pLink = sampleGraph.getLink(pLink.to, 'parent-directory');
-  }
-  while (ancestors.length > 0) {
-    steps.push(ancestors.pop());
-  }
+  followLinks(panel.id,'parent-directory','outside-left-upper',steps);
+
+  // cards
+  followLinks(panel.id,'parent-card','outside-left-lower',steps);
 
   // files (mock)
   for (var i = 0; i < 7; i++) {
     steps.push({template:'file-link', data:{filename:`file_${i}.txt`}, flow:'inside-focus'});
   }
   commands.push(showPanelCommand(steps));
+}
+
+function followLinks(from,linkType,flow,steps) {
+  const stack = [];
+  let pLink = sampleGraph.getLink(from, linkType);
+  while (pLink) {
+    stack.push({template:'link', data:pLink, flow:flow});
+    pLink = sampleGraph.getLink(pLink.to, linkType);
+  }
+  while (stack.length > 0) {
+    steps.push(stack.pop());
+  }
 }
 
 module.exports = {

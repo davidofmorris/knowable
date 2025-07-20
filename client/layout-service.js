@@ -1,22 +1,21 @@
 //
 // layout service
 //
-window.layoutService = function () {
+import templateService from './template-service.js';
 
-    // Panel layout cache
-    var cachedLayout = null;
+// Panel layout cache
+var cachedLayout = null;
 
-    async function init() {
-        await window.templateService.loadTemplateFile('panel-layout.html');
-        cachedLayout = window.templateService.newElement('panel-layout');
-    }
+async function init() {
+    await templateService.loadTemplateFile('panel-layout.html');
+    cachedLayout = templateService.newElement('panel-layout');
+}
 
-    function getLayout() {
-        return cachedLayout.cloneNode(true);
-    }
+function getLayout() {
+    return cachedLayout.cloneNode(true);
+}
 
-    return {
-        init: init,
-        getLayout: getLayout
-    }
-}();
+export default {
+    init,
+    getLayout
+}

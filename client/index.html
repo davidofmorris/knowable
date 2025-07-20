@@ -1,74 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" style="background-color:rgb(34, 33, 32)">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Knowable - graph explorer</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
-        html,body {
-            width:100%; height:100%;
+        html,
+        body {
+            width: 100%;
+            height: 100%;
             margin: auto;
         }
-        /* body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 1200px;
-            /* margin: 0 auto;
-            /* padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h2.app-title {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .top-level-panel {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .api-test {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border-left: 4px solid #2196f3;
-        }
-        .dream-body {
-            margin: 20px 0;
-            padding: 20px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            line-height: 1.6;
-        }
-        .loading {
-            color: #666;
-            font-style: italic;
-        }
-        .error {
-            color: #d32f2f;
-            background: #ffebee;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .success {
-            color: #388e3c;
-            background: #e8f5e8;
-            padding: 10px;
-            border-radius: 5px;
-        } */
     </style>
 </head>
+
 <body>
     <table id="sizer-table" style="border:0; display:none;">
-        <tr><td nowrap><div id="dream" style="font-size:larger;">d r e a m<br>d r e a m</div></td></tr>
+        <tr>
+            <td nowrap>
+                <div id="dream" style="font-size:larger;">d r e a m<br>d r e a m</div>
+            </td>
+        </tr>
     </table>
 
     <table style="width:100%; height:100%;">
@@ -76,32 +30,12 @@
             <td>
                 <div id="dream-body" style="margin: auto; ">
                     <div style="float:right; ">
-                        <button style="margin: 5px; " onclick="window.gridService.toggleGrid()">grid</button>
+                        <button id="grid-button" style="margin: 5px; ">grid</button>
                     </div>
                 </div>
             </td>
         </tr>
-    </table>    
-
-        <div class="top-level-panel" style="display:none; ">
-            <div style="float:right; ">
-                <button id="status-open-button" style="margin: 5px; " onclick="window.statusService.toggleOpen()"> + </button>
-            </div>
-            <div id="top-status-panel" style="display:none; ">
-                <div id="connection-status" class="loading">Testing connection...</div>
-                
-                <div class="api-test">
-                    <h4>API Response:</h4>
-                    <pre id="api-response">Loading...</pre>
-                </div>
-            </div>
-        </div>
-    <!-- </div> -->
-
-    <script src="template-service.js"></script>
-    <script src="layout-service.js"></script>
-    <script src="resize-service.js"></script>
-    <script src="grid-service.js"></script>
+    </table>
     <script type="module" src="app.js"></script>
 </body>
 </html>

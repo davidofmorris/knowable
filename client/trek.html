@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color:rgb(24, 23, 22)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trek Game</title>
+    <link rel="stylesheet" href="knowable.css">
+</head>
+<body>
+    <table id="sizer-table" style="border:0; display:none;">
+        <tr>
+            <td nowrap>
+                <div id="dream" style="font-size:larger;">d r e a m<br>d r e a m</div>
+            </td>
+        </tr>
+    </table>
+
+    <table style="width:100%; height:100%;">
+        <tr>
+            <td>
+                <div id="dream-body" style="margin: auto; ">
+                    <div style="float:right; ">
+                        <button id="grid-button" style="margin: 5px; ">grid</button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+<script type="module">
+    import templateService from './template-service.js';
+    import layoutService from './layout-service.js';
+    import resizeService from './resize-service.js';
+    import gridService from './grid-service.js';
+    var app = function () {
+        const dreamBody = document.getElementById('dream-body');
+
+        //
+        // custom templates
+        //
+        const parseHtml = templateService.util.parseHtml;
+        const addTemplate = templateService.register;
+
+        addTemplate('title', (data) => {
+            return parseHtml(`<div style='text-align:center; 
+vertical-align:middle; width:100%; font-weight: bold; 
+font-size:larger; ' class='title'>${data.arg}</div>`);
+        });
+
+        addTemplate('text', (data) => {
+            return parseHtml(`<div style='text-align:left; 
+vertical-align:middle; width:100%; font-weight: normal; '>${data.arg}</div>`);
+        });
+
+        //
+        // build page from script
+        //
+        const mockData =
+        {
+            children: [
+                // { flow: "inside-top-center", template: 'title', arg: 'My Title' },
+                {flow:"inside-focus", template:'title', arg: 'initializing...'}
+            ]
+        }
+
+        function loadData(layout) {
+            const data = mockData; // always loading mock data
+            const childListStack = [];
+            childListStack.push({ parent: layout, childList: data.children });
+
+            while (childListStack.length > 0) {
+                const { parent, childList } = childListStack.pop();
+                for (const child of childList) {
+                    const {flow:flowId,template, ...args} = child;
+                    console.log("flowId: " + flowId);
+                    console.log("template: " + template);
+                    console.log("args: " + JSON.stringify(args));
+                    const clone = templateService.newElement(template, args);
+                    if (flowId) {
+                        const flow = parent.querySelector(`#${flowId}`);
+                        if (!flow) {
+                            console.warn("No Flow: " + flowId);
+                        } else {
+                            flow.appendChild(clone);
+                        }
+                    } else {
+                        parent.appendChild(clone);
+                    }
+                }
+            }
+        }
+
+        function initGridButton() {
+            document.getElementById("grid-button").addEventListener("click", ()=>gridService.toggleGrid());
+        }
+
+        async function init() {
+            await layoutService.init();
+            const layout = await layoutService.getLayout();
+            loadData(layout);
+            dreamBody.prepend(layout);
+            resizeService.init();
+            initGridButton();
+        }
+
+        return {
+            init: init,
+        }
+    }();
+
+    // Initialize the application
+    window.onload = function () {
+        app.init();
+    }
+</script>
+</html>

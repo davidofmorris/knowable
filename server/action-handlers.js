@@ -69,6 +69,7 @@ function onShowApp(req) {
   }
 
   if (panel) {
+    state.activePanelId = panel.id;
     const builder = panelBuilders[panel.kind];
     builder(commands, panel);
   } else {
@@ -83,14 +84,15 @@ function onSelectPanel(req) {
   const commands = [];
   const state = req.sessionState;
   const panelId = req.data['panel-id'] || req.data.id;
-  const panel = sampleGraph.getPanel(panelId);
+  var panel = sampleGraph.getPanel(panelId);
 
   if (!panel) {
-    panelId = sampleGraph.rootId;
-    panel - sampleGraph.getRoot();
+    panel = sampleGraph.getRoot();
   }
 
-  state.activePanelId = panelId;
+  if (panel) {
+    state.activePanelId = panel.id;
+  }
 
   // get builder for the selected panel
   const builder = panelBuilders[panel.kind];

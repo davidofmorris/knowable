@@ -11,21 +11,48 @@ const server = http.createServer(app);
 // Session state storage
 const sessionStates = new Map();
 const wsConnections = new Map(); // Map instance IDs to WebSocket connections
+const appHandlers = new Map(); // Cache for dynamically loaded app handlers
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Session middleware - extract instance header
+// Parse instance:app format
+function parseInstanceApp(instanceString) {
+  const parts = instanceString.split(':');
+  return {
+    instance: parts[0] || 'default',
+    app: parts[1] || 'default'
+  };
+}
+
+// Session middleware - extract instance header and parse app
 app.use((req, res, next) => {
-  const instance = req.headers['instance'] || req.query.instance || 'default';
+  const instanceString = req.headers['instance'] || req.query.instance || 'default';
+  const { instance, app } = parseInstanceApp(instanceString);
   
   // Initialize session state if it doesn't exist
   if (!sessionStates.has(instance)) {
-    sessionStates.set(instance, {"instance": instance});
+    sessionStates.set(instance, {
+      "instance": instance,
+      "apps": new Map()
+    });
   }
   
-  req.sessionState = sessionStates.get(instance);
+  const sessionState = sessionStates.get(instance);
+  
+  // Initialize app state if it doesn't exist
+  if (!sessionState.apps.has(app)) {
+    sessionState.apps.set(app, {
+      "app": app,
+      "state": {}
+    });
+  }
+  
+  req.sessionState = sessionState;
+  req.appState = sessionState.apps.get(app);
+  req.instance = instance;
+  req.app = app;
   next();
 });
 
@@ -110,7 +137,32 @@ app.get('/api/status', (req, res) => { res.json(statusResponse(req)); });
 //
 // Server interface
 //
-const handlers = require('./action-handlers').handlers;
+const defaultHandlers = require('./action-handlers').handlers;
+
+// Dynamic app handler loading
+function loadAppHandlers(appName) {
+  if (appHandlers.has(appName)) {
+    return appHandlers.get(appName);
+  }
+  
+  try {
+    const appModule = require(`./apps/${appName}.js`);
+    const handlers = appModule.handlers || {};
+    appHandlers.set(appName, handlers);
+    console.log(`Loaded handlers for app: ${appName}`);
+    return handlers;
+  } catch (error) {
+    console.warn("Unexpected error: " + error);
+    console.log(`No custom handlers found for app: ${appName}, using defaults`);
+    return {};
+  }
+}
+
+// Get handlers for a specific app (with fallback to default)
+function getHandlersForApp(appName) {
+  const appSpecificHandlers = loadAppHandlers(appName);
+  return { ...defaultHandlers, ...appSpecificHandlers };
+}
 
 //
 // http server interface
@@ -123,9 +175,10 @@ function handleServerRequest(req, res) {
     return;
   }
 
+  const handlers = getHandlersForApp(req.app);
   const handler = handlers[action];
   if (!handler) {
-    res.json( [warn(`No handler for action: ${action}.`)] );
+    res.json( [warn(`No handler for action: ${action} in app: ${req.app}.`)] );
     return;
   }
 
@@ -158,15 +211,29 @@ wss.on('connection', (ws, req) => {
   
   // Extract instance ID from query params or headers
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const instance = url.searchParams.get('instance') || req.headers['instance'] || 'default';
+  const instanceString = url.searchParams.get('instance') || req.headers['instance'] || 'default';
+  const { instance, app } = parseInstanceApp(instanceString);
   
   // Initialize session state if it doesn't exist
   if (!sessionStates.has(instance)) {
-    sessionStates.set(instance, {"instance": instance});
+    sessionStates.set(instance, {
+      "instance": instance,
+      "apps": new Map()
+    });
+  }
+  
+  const sessionState = sessionStates.get(instance);
+  
+  // Initialize app state if it doesn't exist
+  if (!sessionState.apps.has(app)) {
+    sessionState.apps.set(app, {
+      "app": app,
+      "state": {}
+    });
   }
   
   // Store WebSocket connection
-  wsConnections.set(instance, ws);
+  wsConnections.set(instanceString, ws);
   
   ws.on('message', (message) => {
     try {
@@ -180,9 +247,11 @@ wss.on('connection', (ws, req) => {
       
       // Create mock req/res objects to reuse existing handlers
       const mockReq = {
-        // query: { action, ...actionData },
         data: data,
-        sessionState: sessionStates.get(instance)
+        sessionState: sessionState,
+        appState: sessionState.apps.get(app),
+        instance: instance,
+        app: app
       };
       
       const mockRes = {
@@ -192,7 +261,7 @@ wss.on('connection', (ws, req) => {
       };
       
       // Handle the WebSocket action using existing handlers
-      handleWebSocketAction(mockReq, mockRes, action);
+      handleWebSocketAction(mockReq, mockRes, action, app);
       
     } catch (error) {
       console.error('WebSocket message error:', error);
@@ -202,20 +271,21 @@ wss.on('connection', (ws, req) => {
   
   ws.on('close', () => {
     console.log('WebSocket connection closed');
-    wsConnections.delete(instance);
+    wsConnections.delete(instanceString);
   });
   
   ws.on('error', (error) => {
     console.error('WebSocket error:', error);
-    wsConnections.delete(instance);
+    wsConnections.delete(instanceString);
   });
 });
 
 // Handle WebSocket actions using action handlers
-function handleWebSocketAction(req, res, action) {
+function handleWebSocketAction(req, res, action, appName) {
+  const handlers = getHandlersForApp(appName);
   const handler = handlers[action];
   if (!handler) {
-    res.json([{ command: 'warn', message: `No handler for action: ${action}.` }]);
+    res.json([{ command: 'warn', message: `No handler for action: ${action} in app: ${appName}.` }]);
     return;
   }
   

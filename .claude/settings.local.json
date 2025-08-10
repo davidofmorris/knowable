@@ -28,7 +28,9 @@
       "Bash(./restart-all.sh:*)",
       "Bash(journalctl:*)",
       "Bash(ss:*)",
-      "Bash(./stop-all.sh:*)"
+      "Bash(./stop-all.sh:*)",
+      "Bash(claude-code --version)",
+      "Bash(claude --version)"
     ],
     "deny": []
   }

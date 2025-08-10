@@ -34,7 +34,8 @@
       "Bash(npx playwright install:*)",
       "Bash(sudo apt-get:*)",
       "Bash(sudo apt-get install:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(serve:*)"
     ],
     "deny": []
   }

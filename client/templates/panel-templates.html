@@ -1,29 +1,6 @@
 <script>
-window.templateService.util = function() {
-    function showIfVal(clone, name, val) {
-        if (val) {
-            const div = clone.querySelector(`div[name='${name}']`);
-            if (div) {
-                div.textContent = val;
-                div.style.display = 'block';
-            }
-        }
-    }
-    
-    function setInnerHtml(clone, name, html) {
-        if (html) {
-            const div = clone.querySelector(`div[name='${name}']`);
-            if (div) {
-                div.innerHTML = html;
-                div.style.display = 'block';
-            }
-        }
-    }
-    return {
-        showIfVal: showIfVal,
-        setInnerHtml: setInnerHtml
-    }
-}();
+// Import template utilities
+import('../template-utils.js');
 </script>
 <!--title-1-->
 <template id="title-1">
@@ -34,7 +11,7 @@ window.templateService.util = function() {
 <script>
     window.templateService.register('title-1', (data) => {
         console.log("Rendering: 'title-1': data:" + JSON.stringify(data));
-        const util = window.templateService.util;
+        const util = window.templateUtils;
         const t = document.getElementById("title-1");
         const c = t.content.cloneNode(true);
         util.showIfVal(c,"title", data.title);
@@ -50,7 +27,7 @@ window.templateService.util = function() {
 </template>
 <script>
     window.templateService.register('centered-text-1', (data) => {
-        const util = window.templateService.util;
+        const util = window.templateUtils;
         const t = document.getElementById("centered-text-1");
         const c = t.content.cloneNode(true);
         util.showIfVal(c,"text", data.text);
@@ -66,7 +43,7 @@ window.templateService.util = function() {
 </template>
 <script>
     window.templateService.register('content-html', (data) => {
-        const util = window.templateService.util;
+        const util = window.templateUtils;
         const t = document.getElementById("content-html");
         const c = t.content.cloneNode(true);
         util.setInnerHtml(c,"content", data.content);

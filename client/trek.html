@@ -36,23 +36,6 @@
         const dreamBody = document.getElementById('dream-body');
 
         //
-        // custom templates
-        //
-        const parseHtml = templateService.util.parseHtml;
-        const addTemplate = templateService.register;
-
-        addTemplate('title', (data) => {
-            return parseHtml(`<div style='text-align:center; 
-vertical-align:middle; width:100%; font-weight: bold; 
-font-size:larger; ' class='title'>${data.arg}</div>`);
-        });
-
-        addTemplate('text', (data) => {
-            return parseHtml(`<div style='text-align:left; 
-vertical-align:middle; width:100%; font-weight: normal; '>${data.arg}</div>`);
-        });
-
-        //
         // build page from script
         //
         const mockData =
@@ -95,6 +78,11 @@ vertical-align:middle; width:100%; font-weight: normal; '>${data.arg}</div>`);
         }
 
         async function init() {
+            //
+            // Load templates
+            //
+            await templateService.loadTemplateFile('trek-templates.html');
+            
             await layoutService.init();
             const layout = await layoutService.getLayout();
             loadData(layout);

@@ -4,6 +4,9 @@ const WebSocket = require('ws');
 const http = require('http');
 require('dotenv').config();
 
+// Import template development service
+const templateDevService = require('./template-dev-handler');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
@@ -68,9 +71,30 @@ app.use((req, res, next) => {
   // Add URL query parameters
   if (req.query && typeof req.query === 'object') {
     for (const [key, value] of Object.entries(req.query)) {
-      data[key] = value;
+      if (key.includes('.')) {
+        // Split key on '.' to create nested object structure
+        const keys = key.split('.');
+        let current = data;
+        
+        // Navigate/create nested structure for all but the last key
+        for (let i = 0; i < keys.length - 1; i++) {
+          const nestedKey = keys[i];
+          if (!current[nestedKey] || typeof current[nestedKey] !== 'object') {
+            current[nestedKey] = {};
+          }
+          current = current[nestedKey];
+        }
+        
+        // Set the final value
+        current[keys[keys.length - 1]] = value;
+      } else {
+        data[key] = value;
+      }
     }
   }
+  
+  // Add call-method parameter for troubleshooting
+  data['call-method'] = req.method;
   
   req.data = data;
   next();
@@ -134,6 +158,9 @@ function statusResponse(req) {
 app.get('/status', (req, res) => { res.json(statusResponse(req)); });
 app.get('/api/status', (req, res) => { res.json(statusResponse(req)); });
 
+// template-dev-service
+templateDevService.setupRoutes(app);
+
 //
 // Server interface
 //
@@ -141,7 +168,7 @@ const defaultHandlers = require('./action-handlers').handlers;
 
 // Dynamic app handler loading
 function loadAppHandlers(appName) {
-  if (appHandlers.has(appName)) {
+  if (appHandlers.has(appName) || appName === 'default') {
     return appHandlers.get(appName);
   }
   
@@ -192,6 +219,7 @@ function handleServerRequest(req, res) {
 
 app.get('/api/server', handleServerRequest);
 app.post('/api/server', handleServerRequest);
+app.put('/api/server', handleServerRequest);
 
 // Serve static files from public directory
 app.use(express.static('public'));
@@ -293,7 +321,11 @@ function handleWebSocketAction(req, res, action, appName) {
   res.json(commands);
 }
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`WebSocket server ready`);
+
+  // Initialize template development service
+  console.log("Initializing templateDevService...");
+  await templateDevService.init();
 });

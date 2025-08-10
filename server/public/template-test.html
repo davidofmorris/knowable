@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        button {
+            background-color: #007cba;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #005a85;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .result h3 {
+            margin-top: 0;
+        }
+        .result pre {
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .rendered-html {
+            border: 2px solid #007cba;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Template Test</h1>
+    <p>Test your templates by providing a template ID and JSON data.</p>
+    
+    <form id="templateForm">
+        <div class="form-group">
+            <label for="templateId">Template ID:</label>
+            <input type="text" id="templateId" name="templateId" placeholder="e.g., title-1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="data">Data (JSON):</label>
+            <textarea id="data" name="data" placeholder='{"title": "Hello World", "subtitle": "Testing templates"}'></textarea>
+        </div>
+        
+        <button type="submit">Test Template</button>
+    </form>
+    
+    <div id="result" class="result" style="display: none;">
+        <h3>Result:</h3>
+        <div id="resultContent"></div>
+    </div>
+
+    <script>
+        document.getElementById('templateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const templateId = document.getElementById('templateId').value;
+            const dataText = document.getElementById('data').value;
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            // Parse JSON data if provided
+            let data = {};
+            if (dataText.trim()) {
+                try {
+                    data = JSON.parse(dataText);
+                } catch (err) {
+                    resultContent.innerHTML = `<p style="color: red;">Invalid JSON: ${err.message}</p>`;
+                    resultDiv.style.display = 'block';
+                    return;
+                }
+            }
+            
+            try {
+                const response = await fetch('/templates/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        templateId: templateId,
+                        data: data
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultContent.innerHTML = `
+                        <p style="color: green;">✓ Template rendered successfully!</p>
+                        <h4>Rendered HTML:</h4>
+                        <div class="rendered-html">${result.html}</div>
+                        <h4>Raw HTML:</h4>
+                        <pre>${result.html.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                    `;
+                } else {
+                    resultContent.innerHTML = `
+                        <p style="color: red;">✗ Error: ${result.error}</p>
+                        ${result.setupInstructions ? `
+                            <h4>Setup Instructions:</h4>
+                            <ul>
+                                ${result.setupInstructions.map(instruction => `<li>${instruction}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    `;
+                }
+                
+                resultDiv.style.display = 'block';
+                
+            } catch (err) {
+                resultContent.innerHTML = `<p style="color: red;">Network error: ${err.message}</p>`;
+                resultDiv.style.display = 'block';
+            }
+        });
+        
+        // Pre-fill with example data
+        document.getElementById('templateId').value = 'title-1';
+        document.getElementById('data').value = '{"title": "Hello World"}';
+    </script>
+</body>
+</html>

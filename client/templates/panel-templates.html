@@ -33,6 +33,7 @@ window.templateService.util = function() {
 </template>
 <script>
     window.templateService.register('title-1', (data) => {
+        console.log("Rendering: 'title-1': data:" + JSON.stringify(data));
         const util = window.templateService.util;
         const t = document.getElementById("title-1");
         const c = t.content.cloneNode(true);

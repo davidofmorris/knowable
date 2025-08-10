@@ -30,7 +30,11 @@
       "Bash(ss:*)",
       "Bash(./stop-all.sh:*)",
       "Bash(claude-code --version)",
-      "Bash(claude --version)"
+      "Bash(claude --version)",
+      "Bash(npx playwright install:*)",
+      "Bash(sudo apt-get:*)",
+      "Bash(sudo apt-get install:*)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

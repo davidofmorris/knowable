@@ -329,3 +329,64 @@ server.listen(PORT, async () => {
   console.log("Initializing templateDevService...");
   await templateDevService.init();
 });
+
+// Graceful shutdown handling
+let isShuttingDown = false;
+
+function gracefulShutdown(signal) {
+  if (isShuttingDown) {
+    console.log('Force shutdown');
+    process.exit(1);
+  }
+
+  isShuttingDown = true;
+  console.log(`Received ${signal}. Starting graceful shutdown...`);
+
+  // Close HTTP server (stops accepting new connections)
+  server.close((err) => {
+    if (err) {
+      console.error('Error during server shutdown:', err);
+      process.exit(1);
+    }
+
+    console.log('HTTP server closed');
+
+    // Close all WebSocket connections
+    console.log(`Closing ${wsConnections.size} WebSocket connections...`);
+    wsConnections.forEach((ws, instanceString) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close(1001, 'Server shutting down');
+      }
+    });
+    wsConnections.clear();
+
+    // Cleanup template dev service if needed
+    if (templateDevService.cleanup) {
+      templateDevService.cleanup();
+    }
+
+    console.log('Graceful shutdown completed');
+    process.exit(0);
+  });
+
+  // Force shutdown after timeout
+  setTimeout(() => {
+    console.error('Could not close connections in time, forcefully shutting down');
+    process.exit(1);
+  }, 10000);
+}
+
+// Listen for shutdown signals
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  gracefulShutdown('uncaughtException');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  gracefulShutdown('unhandledRejection');
+});

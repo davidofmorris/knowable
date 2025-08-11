@@ -9,14 +9,15 @@ const WS_BASE_URL = 'wss://knowable-api.up.railway.app';
 const LOCAL_WS_URL = 'ws://localhost:3000';
 const wsUrl = window.location.hostname === 'localhost' ? LOCAL_WS_URL : WS_BASE_URL;
 
-function initInstance() {
+function initInstance(appName) {
+    const storageKey = `${appName}-instance`;
     // Try to get existing instance from localStorage
-    let instance = sessionStorage.getItem('knowable-instance');
+    let instance = sessionStorage.getItem(storageKey);
     
     if (!instance) {
         // Start new instance
-        instance = `session-${Math.random().toString(36).substr(2, 9)}`;
-        sessionStorage.setItem('knowable-instance', instance);
+        instance = `session-${Math.random().toString(36).substr(2, 9)}:${appName}`;
+        sessionStorage.setItem(storageKey, instance);
         console.log(`New session created: ${instance}`);
     } else {
         console.log(`Restored session: ${instance}`);
@@ -24,7 +25,18 @@ function initInstance() {
     
     return instance;
 }
-const INSTANCE = initInstance();
+const INSTANCE_MAP = {}; //initInstance();
+function getInstance(appName) {
+    if (!appName) { 
+        appName = "default";
+    }
+    var instance = INSTANCE_MAP[appName];
+    if (!instance) {
+        instance = initInstance(appName);
+        INSTANCE_MAP[appName] = instance;
+    }
+    return instance;
+}
 
 // Show App - send first action to server
 // - called from ws.onopen event in connectWebSocket()
@@ -38,14 +50,14 @@ async function showApp() {
 
 var commandHandlers;
 
-function connectWebSocket(handlers) {
+function connectWebSocket(handlers, appName) {
     if (ws && ws.readyState === WebSocket.OPEN) {
         return; // Already connected
     }
     commandHandlers = handlers;
 
     try {
-        ws = new WebSocket(wsUrl + '?instance=' + INSTANCE);
+        ws = new WebSocket(wsUrl + '?instance=' + getInstance(appName));
 
         ws.onopen = () => {
             console.log('WebSocket connected');

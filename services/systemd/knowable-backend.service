@@ -8,6 +8,8 @@ WorkingDirectory=/home/dmorris/projects/knowable/server
 ExecStart=/home/dmorris/.nvm/versions/node/v22.17.0/bin/npm run dev
 Restart=always
 RestartSec=5
+TimeoutStopSec=10
+KillMode=mixed
 Environment=NODE_ENV=development
 Environment=PORT=3000
 Environment=PATH=/home/dmorris/.nvm/versions/node/v22.17.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

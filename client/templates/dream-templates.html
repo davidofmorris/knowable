@@ -1,0 +1,52 @@
+<script>
+// Import template utilities
+import('../template-utils.js');
+</script>
+
+<!--title-->
+<template id="title">
+    <div style='text-align:center; vertical-align:middle; width:100%; font-weight: bold; font-size:larger;' class='title'>
+        <div name="arg" style='display:none;'>title text</div>
+    </div>
+</template>
+<script>
+    window.templateService.register('title', (data) => {
+        const util = window.templateUtils;
+        const t = document.getElementById("title");
+        const c = t.content.cloneNode(true);
+        util.showIfVal(c, "arg", data.arg);
+        return c;
+    });
+</script>
+
+<!--text-->
+<template id="text">
+    <div style='text-align:left; vertical-align:middle; width:100%; font-weight: normal;'>
+        <div name="arg" style='display:none;'>text content</div>
+    </div>
+</template>
+<script>
+    window.templateService.register('text', (data) => {
+        const util = window.templateUtils;
+        const t = document.getElementById("text");
+        const c = t.content.cloneNode(true);
+        util.showIfVal(c, "arg", data.arg);
+        return c;
+    });
+</script>
+
+<!--content-html-->
+<template id="content-html">
+    <div style='height:100%; width:100%; padding:5px; '>
+        <div name="content" style='font-weight: normal; display:none; '><strong>content</strong></div>
+    </div>
+</template>
+<script>
+    window.templateService.register('content-html', (data) => {
+        const util = window.templateUtils;
+        const t = document.getElementById("content-html");
+        const c = t.content.cloneNode(true);
+        util.setInnerHtml(c,"content", data.content);
+        return c;
+    });
+</script>

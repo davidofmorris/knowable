@@ -32,87 +32,110 @@
     import layoutService from './layout-service.js';
     import resizeService from './resize-service.js';
     import gridService from './grid-service.js';
-    var app = function () {
-        const dreamBody = document.getElementById('dream-body');
+    import serverConnection from './server-connection.js';
 
-        //
-        // custom templates
-        //
-        const parseHtml = templateService.util.parseHtml;
-        const addTemplate = templateService.register;
-
-        addTemplate('title', (data) => {
-            return parseHtml(`<div style='text-align:center; 
-vertical-align:middle; width:100%; font-weight: bold; 
-font-size:larger; ' class='title'>${data.arg}</div>`);
-        });
-
-        addTemplate('text', (data) => {
-            return parseHtml(`<div style='text-align:left; 
-vertical-align:middle; width:100%; font-weight: normal; '>${data.arg}</div>`);
-        });
-
-        //
-        // build page from script
-        //
-        const mockData =
-        {
-            children: [
-                { flow: "inside-top-center", template: 'title', arg: 'My Title' },
-                { flow: "inside-top-center", template: 'text', arg: 'The title is the thing.' },
-                { flow: "inside-top-right", template: 'text', arg: 'This is easy.' },
-                { flow: "inside-focus", template: 'text', arg: 'Now is the time for all good men to come to the aid of their party!'}
-            ]
+    // Apply panel layout to dream-body container
+    function applyPanelLayout(layoutBody) {
+        const contentElement = document.getElementById('dream-body');
+        for (var i = 0; i < contentElement.children.length; i++) {
+            const child = contentElement.children[i];
+            console.log(`child [${i}]: ${child.tagName}`);
         }
 
-        function loadData(layout) {
-            const data = mockData; // always loading mock data
-            const childListStack = [];
-            childListStack.push({ parent: layout, childList: data.children });
+        const first = contentElement.firstElementChild;
 
-            while (childListStack.length > 0) {
-                const { parent, childList } = childListStack.pop();
-                for (const child of childList) {
-                    const {flow:flowId,template, ...args} = child;
-                    console.log("flowId: " + flowId);
-                    console.log("template: " + template);
-                    console.log("args: " + JSON.stringify(args));
-                    const clone = templateService.newElement(template, args);
-                    if (flowId) {
-                        const flow = parent.querySelector(`#${flowId}`);
-                        if (!flow) {
-                            console.warn("No Flow: " + flowId);
-                        } else {
-                            flow.appendChild(clone);
-                        }
-                    } else {
-                        parent.appendChild(clone);
-                    }
-                }
+        if (first && first.tagName === 'MAIN') {
+            console.log('main found.');
+            contentElement.replaceChild(layoutBody, first);
+        } else {
+            console.log('main not found.');
+            contentElement.prepend(layoutBody);
+        }
+    }
+
+    // Command handlers
+    const commandHandlers = {
+        "warn": doWarn,
+        "log": doLog,
+        "show-status": doShowStatus,
+        "clear-panel": doClearPanel,
+        "show-panel": doShowPanel
+    }
+
+    function doWarn(commandObj) {
+        console.warn("Server Warning: " + commandObj.message);
+        console.log("Details    : \n" + JSON.stringify(commandObj, null, 2));
+    }
+
+    function doLog(commandObj) {
+        console.log("Server Info: " + commandObj.message);
+        console.log("Details    : \n" + JSON.stringify(commandObj, null, 2));
+    }
+
+    function doShowStatus(commandObj) {
+        console.log("show-status: " + JSON.stringify(commandObj, null, 2));
+    }
+
+    function doClearPanel(commandObj) {
+        const contentElement = document.getElementById('dream-body');
+        contentElement.style.display='none';
+    }
+
+    async function doShowPanel(commandObj) {
+        const steps = commandObj.steps;
+
+        // Get and apply the panel layout
+        const layoutBody = await layoutService.getLayout();
+        applyPanelLayout(layoutBody);
+
+        for (const step of steps) {
+            const templateElement = templateService.newElement(step.template, step.data);
+            if (templateElement) {
+                addElementToFlow(step.flow, templateElement);
+            } else {
+                console.warn(`Missing template: ${step.template}`);
+                addTextToFlow(step.flow, step.data.arg || 'Missing template data');
             }
         }
+        gridService.refreshGrid();
+    }
 
-        function initGridButton() {
-            document.getElementById("grid-button").addEventListener("click", ()=>gridService.toggleGrid());
+    // Helper function to add content to specific flow containers
+    function addElementToFlow(flowId, element) {
+        const flowElement = document.getElementById(flowId);
+        if (flowElement) {
+            flowElement.appendChild(element);
+        } else {
+            console.warn(`flow not found: ${flowId}`);
         }
+    }
 
-        async function init() {
-            await layoutService.init();
-            const layout = await layoutService.getLayout();
-            loadData(layout);
-            dreamBody.prepend(layout);
-            resizeService.init();
-            initGridButton();
+    function addTextToFlow(flowId, content) {
+        const flowElement = document.getElementById(flowId);
+        if (flowElement) {
+            const newDiv = document.createElement('div');
+            newDiv.innerHTML = content;
+            flowElement.appendChild(newDiv);
+        } else {
+            console.warn(`flow not found: ${flowId}`);
         }
+    }
 
-        return {
-            init: init,
-        }
-    }();
+    function initGridButton() {
+        document.getElementById("grid-button").addEventListener("click", ()=>gridService.toggleGrid());
+    }
 
     // Initialize the application
-    window.onload = function () {
-        app.init();
+    window.onload = async function () {
+        resizeService.init();
+        layoutService.init();
+        initGridButton();
+
+        // Load templates
+        await templateService.loadTemplateFile('dream-templates.html');
+        
+        // Connect to server with command handlers
+        serverConnection.connectWebSocket(commandHandlers, "dream");
     }
 </script>
 </html>

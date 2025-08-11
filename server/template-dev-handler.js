@@ -63,14 +63,15 @@ class TemplateDevService {
         }
     }
 
-    async testTemplate(templateId, data) {
+    async testTemplate(appName, templateId, data) {
         if (!this.isInitialized || !this.page) {
             return { error: 'Template development service not initialized' };
         }
 
         try {
-            const result = await this.page.evaluate(({templateId, data}) => {
+            const result = await this.page.evaluate(async ({appName, templateId, data}) => {
                 try {
+                    await window.templateService.loadTemplateFile(appName + "-templates.html");
                     const element = window.templateService.newElement(templateId, data);
                     if (!element) {
                         return {
@@ -107,7 +108,7 @@ class TemplateDevService {
                         error: error.message
                     };
                 }
-            }, {templateId, data});
+            }, {appName, templateId, data});
             
             return result;
         } catch (error) {
@@ -118,15 +119,17 @@ class TemplateDevService {
         }
     }
 
-    async listTemplates() {
+    async listTemplates(appName) {
         if (!this.isInitialized || !this.page) {
             return { error: 'Template development service not initialized' };
         }
 
         try {
-            const templates = await this.page.evaluate(() => {
+            console.log("loading templates for app: " + appName);
+            const templates = await this.page.evaluate(async (appName) => {
+                await window.templateService.loadTemplateFile(appName + "-templates.html");
                 return window.templateService.listTemplates();
-            });
+            }, appName);
             
             return {
                 success: true,
@@ -239,9 +242,19 @@ const normalizeTemplateParams = (req, res, next) => {
     next();
 };
 
+function getAppName(req) {
+    if (req.query && typeof req.query === 'object') {
+        for (const [key, value] of Object.entries(req.query)) {
+            if (key === 'app') { return value; }
+        }
+    }
+    return "default";
+}
+
 // Handler map for different template endpoints
 const templateHandlers = {
     test: async (req, res) => {
+        const appName = getAppName(req);
         const { templateId, data } = req.data;
         
         if (!templateId) {
@@ -253,7 +266,7 @@ const templateHandlers = {
 
         console.log("templateHandlers:test - req.data:" + JSON.stringify(req.data));
 
-        const result = await templateDevService.testTemplate(templateId, data || {});
+        const result = await templateDevService.testTemplate(appName, templateId, data || {});
         
         // Add setup instructions if service isn't initialized
         if (result.error && result.error.includes('not initialized')) {
@@ -269,7 +282,8 @@ const templateHandlers = {
     },
 
     list: async (req, res) => {
-        const result = await templateDevService.listTemplates();
+        const appName = getAppName(req);
+        const result = await templateDevService.listTemplates(appName);
         res.json(result);
     },
 

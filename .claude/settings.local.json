@@ -35,7 +35,10 @@
       "Bash(sudo apt-get:*)",
       "Bash(sudo apt-get install:*)",
       "Bash(timeout:*)",
-      "Bash(serve:*)"
+      "Bash(serve:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(claude doctor)",
+      "Bash(echo $PATH)"
     ],
     "deny": []
   }

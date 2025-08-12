@@ -314,6 +314,7 @@ function handleWebSocketAction(req, res, action, appName) {
   const handler = handlers[action];
   if (!handler) {
     res.json([{ command: 'warn', message: `No handler for action: ${action} in app: ${appName}.` }]);
+    console.log(`No handler for action: ${action} in app: ${appName}. ` + JSON.stringify(req.data));
     return;
   }
   

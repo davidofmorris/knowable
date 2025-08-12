@@ -3,7 +3,7 @@ const sampleGraph = require('./sample-graph-2.js');
 
 // action -> handler map
 const handlers = {
-  "show-app": onShowApp,
+  "open-app": onOpenApp,
   "select-panel": onSelectPanel
 };
 
@@ -52,8 +52,8 @@ function showPanelCommand(steps) {
 //
 // action handlers
 //
-function onShowApp(req) {
-  // on: show-app
+function onOpenApp(req) {
+  // on: open-app
   const commands = [];
   const state = req.sessionState;
 

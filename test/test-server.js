@@ -72,9 +72,9 @@ async function testErrorHandling(testData) {
     testResponseStatus(response, 404);
 }
 
-async function testShowApp(testData) {
-    testData.name = 'Action: show-app';
-    const URL = `${apiUrl}server?action=show-app&instance=test`;
+async function testOpenApp(testData) {
+    testData.name = 'Action: open-app';
+    const URL = `${apiUrl}server?action=open-app&instance=test`;
     testData.URL = URL;
     const response = await fetch(URL);
     const data = await response.json(); 
@@ -228,7 +228,7 @@ async function runAllTests() {
     await runTest(testStatus);
     await runTest(testErrorHandling);
 
-    await runTest(testShowApp);
+    await runTest(testOpenApp);
     await runTest(testSelectPanel);
     await runTest(testMethodAgnosticAPI);
     

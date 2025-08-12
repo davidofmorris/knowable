@@ -233,7 +233,7 @@ function initGame(req, state) {
 const handlers = {
   "trek-start": onTrekStart,
   "trek-status": onTrekStatus,
-  "show-app": onShowTrekApp,  // Override default show-app for trek
+  "open-app": onShowTrekApp,  // Override default open-app for trek
   "set-course": onSetCourse,  // w=warp [0..8];d=direction [0..9)
 };
 
@@ -243,7 +243,7 @@ function onSetCourse(req) {
   ship.setCourse({dir:dir, warp:warp});
 }
 
-// show-app
+// open-app
 function onShowTrekApp(req) {
   if (req.appState.state.onShutdown) {
     req.appState.state.onShutdown();

@@ -1,6 +1,7 @@
 import templateService from './template-service.js';
 import layoutService from './layout-service.js';
 import gridService from './grid-service.js';
+import serverConnection from './server-connection.js';
 
 function applyPanelLayout(layoutBody) {
     const contentElement = document.getElementById('dream-body');
@@ -54,7 +55,7 @@ function showStatus(commandObj) {
     console.log("show-status: " + JSON.stringify(commandObj, null, 2));
 }
 
-function clearPanel(commandObj) {
+function clearPanel() {
     const contentElement = document.getElementById('dream-body');
     contentElement.style.display='none';
 }
@@ -64,17 +65,49 @@ async function showPanel(commandObj) {
 
     const layoutBody = await layoutService.getLayout();
     applyPanelLayout(layoutBody);
+    gridService.refreshGrid();
 
     for (const step of steps) {
         const templateElement = templateService.newElement(step.template, step.data);
         if (templateElement) {
+            const firstElement = (templateElement.nodeType === Node.DOCUMENT_FRAGMENT_NODE)
+                ? templateElement.children[0]
+                : templateElement;
+            
             addElementToFlow(step.flow, templateElement);
+            
+            // element name
+            if (step.data.name) {
+                console.log("Naming element: " + step.data.name);
+                firstElement.setAttribute("name", step.data.name);
+            }
+
+            // click action
+            const clickAction = step['click-action'];
+            if (clickAction) {
+                var target = firstElement.querySelector('[name="target"]') || firstElement;
+                target.classList.add("clickable-element");
+                target.addEventListener("click", () => {
+                    const clickData = {};
+                    Object.keys(clickAction.data).forEach(function(key){
+                        var val = clickAction.data[key];
+                        console.log(`[${key} = ${val}]`);
+                        if (val.startsWith('$')) {
+                            const selector = val.slice(1);
+                            const el = document.querySelector(selector);
+                            val = el ? el.value : '';
+                        }
+                        console.log(`[${key} = ${val}]`);
+                        clickData[key] = val;
+                    });
+                    serverConnection.sendWebSocketMessage(clickAction.action, clickData);
+                });
+            }
         } else {
             console.warn(`Missing template: ${step.template}`);
             addTextToFlow(step.flow, step.data.arg || 'Missing template data');
         }
     }
-    gridService.refreshGrid();
 }
 
 export default {

@@ -40,9 +40,9 @@ function getInstance(appName) {
 
 // Show App - send first action to server
 // - called from ws.onopen event in connectWebSocket()
-async function showApp() {
-    // Send "show-app" action
-    const success = sendWebSocketMessage('show-app');
+async function openApp() {
+    // Send "open-app" action
+    const success = sendWebSocketMessage('open-app');
     if (!success) {
         updateConnectionStatus('disconnected');
     }
@@ -65,7 +65,7 @@ function connectWebSocket(handlers, appName) {
             reconnectAttempts = 0;
             updateConnectionStatus('websocket');
 
-            showApp(); // sends the first action: "show-app"
+            openApp(); // sends the first action: "open-app"
         };
 
         ws.onmessage = (event) => {

@@ -38,8 +38,12 @@
       "Bash(serve:*)",
       "mcp__ide__getDiagnostics",
       "Bash(claude doctor)",
-      "Bash(echo $PATH)"
+      "Bash(echo $PATH)",
+      "Bash(npm run dev:*)",
+      "Bash(pkill:*)",
+      "Bash(cp:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

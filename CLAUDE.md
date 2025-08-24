@@ -4,94 +4,95 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-### Server (Backend)
+### Server Development
 ```bash
-cd server
-npm install
-npm run dev     # Development with nodemon
-npm start       # Production
+# Backend server (port 3000)
+cd server && npm run dev
+
+# Start backend in production
+cd server && npm start
+
+# Test server (port 8081)
+cd test && npm run dev
 ```
 
-### Frontend (Static Files)
+### Frontend Development
 ```bash
-cd client
-serve -p 8080   # Serves static files
+# Serve frontend static files (port 8080)
+npx serve client -p 8080
+
+# Or using global serve (if installed)
+serve client -p 8080
 ```
 
-### Test Server
+### Service Management (Production)
 ```bash
-cd test
-npm install
-npm start       # Starts test server on port 8081
-npm run dev     # Development with nodemon
-```
+# Install systemd services
+./services/install-services.sh
 
-### Systemd Services (Recommended)
-```bash
-# One-time setup
-cd services
-./install-services.sh
-
-# Service management
-cd services/scripts
+# Manage all services
+cd services/scripts/
 ./start-all.sh     # Start all services
 ./stop-all.sh      # Stop all services
-./status-all.sh    # Check status
+./status-all.sh    # Check service status
 ./restart-all.sh   # Restart all services
+
+# Individual service management
+sudo systemctl start knowable-backend    # port 3000
+sudo systemctl start knowable-frontend   # port 8080
+sudo systemctl start knowable-test       # port 8081
+
+# View logs
+journalctl -u knowable-backend -f
 ```
 
 ## Architecture Overview
 
-Knowable is a real-time graph explorer with a server-driven architecture:
+Knowable is a knowledge graph explorer with a client-server architecture using WebSocket communication.
 
-- **Backend**: Node.js Express server with WebSocket support (port 3000)
-- **Frontend**: Static HTML/JS client served from client/ (port 8080)
-- **Test Server**: Automated testing with JSON results (port 8081)
-- **Communication**: WebSocket-first with HTTP fallback
-- **Session Management**: Instance-based sessions with persistent state
+### Core Components
 
-### Key Components
+**Server Side (`server/`)**
+- `server.js` - Express server with WebSocket support, session management
+- `action-handlers.js` - Generic action handlers and panel builders
+- `apps/` - Application-specific handlers (dream.js, trek.js)
+- Uses instance-based session state with format `instance:app`
 
-**Server (`server/`)**:
-- `server.js`: Main Express server with WebSocket handling and session middleware
-- `action-handlers.js`: Action-to-handler mapping with command factories
-- `sample-graph.js`: Sample data
+**Client Side (`client/`)**
+- `app.js` - Main application entry point with command handlers
+- `server-connection.js` - WebSocket client with auto-reconnect
+- `template-service.js` - HTML template loading and rendering
+- `layout-service.js` - Panel layout management
+- `common-command-handlers.js` - Shared command processing
 
-**Frontend (`client/`)**:
-- `index.html`: Main application interface
-- `app.js`: Client-side WebSocket logic with automatic reconnection
+### Communication Protocol
 
-**Session Architecture**:
-- Sessions identified by instance headers (`req.headers['instance']`)
-- Server maintains `sessionStates` Map for each active session
-- WebSocket connections tracked in `wsConnections` Map
-- Action-command protocol enables stateful interactions
+The system uses an asymmetric protocol:
+- **Client → Server**: Actions (user interactions, navigation)
+- **Server → Client**: Commands (display updates, panel changes)
 
-### Action-Command Protocol
+Commands include: `show-panel`, `clear-panel`, `warn`, `log`, `show-status`
+Actions include: `open-app`, `select-panel`, `open-panel`
 
-1. Client sends actions via WebSocket: `{action: "action-name", ...params}`
-2. Server routes actions through handlers in `action-handlers.js`
-3. Handlers return commands: `{command: "command-name", ...data}`
-4. Commands are sent back to client for execution
+### Template System
 
-### Development Workflow
+Templates are HTML files in `client/templates/` loaded dynamically:
+- `dream-templates.html` - Dream app UI components
+- `trek-templates.html` - Trek app components  
+- `panel-templates.html` - Panel layout templates
 
-The project uses three coordinated services:
-1. **Backend service**: API server with WebSocket support
-2. **Frontend service**: Static file server for client
-3. **Test service**: Automated API testing with results
+Templates support data binding and click-actions for server communication.
 
-Use systemd services for managed development - they handle service coordination, logging, and automatic restarts.
+### Session Management
 
-### Testing
+- Instance-based sessions with format: `session-{random}:appname`
+- Server maintains session state per instance
+- WebSocket connections mapped to instances
+- Apps can be dynamically loaded from `server/apps/`
 
-- Test server runs comprehensive action-command protocol tests
-- JSON results available at test server endpoints
-- Tests verify WebSocket and HTTP communication paths
-- Service status monitoring included in test suite
+### Development Notes
 
-### Deployment
-
-- **Backend**: Railway auto-deployment from GitHub
-- **Frontend**: GitHub Pages from client/ folder
-- Production URLs configured in `client/app.js`
+- Frontend connects to `localhost:3000` in development, Railway app in production
+- Server supports CORS and handles multiple concurrent sessions
+- Template development service available for live template testing
+- Use browser dev tools to debug WebSocket communication

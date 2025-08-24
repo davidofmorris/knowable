@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color:rgb(34, 33, 32)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowable - graph explorer</title>
+    <link rel="stylesheet" href="../knowable.css">
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+</head>
+<body>
+    <table id="sizer-table" style="border:0; display:none;">
+        <tr>
+            <td nowrap>
+                <div id="dream" style="font-size:larger;">d r e a m<br>d r e a m</div>
+            </td>
+        </tr>
+    </table>
+
+    <table style="width:100%; height:100%;">
+        <tr>
+            <td>
+                <div id="dream-body" style="margin: auto; ">
+                    <div style="float:right; ">
+                        <button id="grid-button" style="margin: 5px; ">grid</button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+<script type="module">
+    import templateService from '../template-service.js';
+    import layoutService from '../layout-service.js';
+    import resizeService from '../resize-service.js';
+    import gridService from '../grid-service.js';
+    import serverConnection from '../server-connection.js';
+    import commonCommandHandlers from '../common-command-handlers.js';
+
+    // Extract app name from URL path
+    function getAppFromPath() {
+        const path = window.location.pathname;
+        const match = path.match(/\/apps\/([^\/]+)/);
+        return match ? match[1] : 'default';
+    }
+
+    // Get command handlers from the common module
+    const commandHandlers = commonCommandHandlers.getHandlers();
+
+    function initGridButton() {
+        document.getElementById("grid-button").addEventListener("click", ()=>gridService.toggleGrid());
+    }
+
+    // Initialize the application
+    window.onload = async function () {
+        const appName = getAppFromPath();
+        
+        resizeService.init();
+        layoutService.init();
+        initGridButton();
+
+        // Load app-specific templates - server will tell us which ones to load
+        // For now, we'll let the server handle template loading via commands
+        
+        // Connect to server with command handlers and app name
+        serverConnection.connectWebSocket(commandHandlers, appName);
+    }
+</script>
+</html>

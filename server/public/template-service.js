@@ -14,9 +14,10 @@ const api = {
 };
 
 async function loadTemplateFile(filename) {
+    console.log("loadTemplateFile: " + filename);
     window.templateService = api;
     try {
-        const response = await fetch(`templates/${filename}`);
+        const response = await fetch(`/templates/${filename}`);
         const htmlText = await response.text();
 
         const tempDiv = document.createElement('div');
@@ -28,6 +29,7 @@ async function loadTemplateFile(filename) {
                 // Add template to DOM for cloning
                 document.head.appendChild(element.cloneNode(true));
             } else if (element.tagName === 'SCRIPT') {
+                console.log("About to eval(...)\n" + element.textContent);
                 // Execute script in global context
                 eval(element.textContent);
             }

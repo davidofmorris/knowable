@@ -1,11 +1,10 @@
 #!/bin/bash
 
 echo "🚀 Starting all Knowable services..."
-systemctl --user start knowable-backend knowable-frontend knowable-test
+systemctl --user start knowable-backend knowable-test
 
 echo "✅ All services started!"
 echo ""
-echo "🔗 Frontend: http://localhost:8080"
 echo "🔗 Test Page: http://localhost:8081"
 echo "🔗 Backend:  http://localhost:3000"
 echo ""

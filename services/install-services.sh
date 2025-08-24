@@ -18,7 +18,7 @@ mkdir -p "$USER_SYSTEMD_DIR"
 
 # Create symbolic links for each service
 echo "📁 Creating symbolic links..."
-for service in knowable-backend knowable-frontend knowable-test; do
+for service in knowable-backend knowable-test; do
     service_file="$SERVICES_DIR/$service.service"
     if [ -f "$service_file" ]; then
         echo "   Linking $service.service"

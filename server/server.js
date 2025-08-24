@@ -158,6 +158,9 @@ function statusResponse(req) {
 app.get('/status', (req, res) => { res.json(statusResponse(req)); });
 app.get('/api/status', (req, res) => { res.json(statusResponse(req)); });
 
+// Serve static files from public directory (must be before app routes)
+app.use(express.static('public'));
+
 // template-dev-service
 templateDevService.setupRoutes(app);
 
@@ -221,16 +224,10 @@ app.get('/api/server', handleServerRequest);
 app.post('/api/server', handleServerRequest);
 app.put('/api/server', handleServerRequest);
 
-// Serve client static files for app routes (CSS, JS, templates, etc.)
-app.use('/apps', express.static('../client'));
-
 // Serve unified index.html for app routes (after static files)
 app.get('/apps/*', (req, res) => {
-  res.sendFile(__dirname + '/apps/index.html');
+  res.sendFile(__dirname + '/public/index.html');
 });
-
-// Serve static files from public directory
-app.use(express.static('public'));
 
 // Fallback handler for unmatched routes
 app.use((req, res, next) => {
